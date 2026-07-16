@@ -47,6 +47,8 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
              TenPhongBan                 TYPE I_CostCenterText-CostCenterDescription,
              NgayDuaVaoSuDung            TYPE I_AssetHistorySheetCube-AssetCapitalizationDate,
              DiaDiemSuDung               TYPE I_FixedAsset-YY1_EvaluationGroup1_FAA,
+             NgayBatDauKhauHao           TYPE I_AssetHistorySheetCube-DepreciationStartDate,
+             NhaMay                      TYPE I_AssetHistorySheetCube-AssetPlant,
            END OF ty_base,
            tt_base TYPE STANDARD TABLE OF ty_base.
 
@@ -169,7 +171,8 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
         er_ASSETSUBNUMBER    TYPE ry_string
         er_POSTINGDATE       TYPE ry_string
         er_loaitaisan        TYPE ry_string
-        er_maphongban        TYPE ry_string.
+        er_maphongban        TYPE ry_string
+        er_nhamay            TYPE ry_string.
 
     CLASS-METHODS get_fiscal_year
       IMPORTING
@@ -209,6 +212,7 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
         iv_keydate           TYPE d
         ir_loaitaisan        TYPE ry_string
         ir_maphongban        TYPE ry_string
+        ir_nhamay            TYPE ry_string
       EXPORTING
         et_keys              TYPE tt_key
         et_keys_gia          TYPE tt_key_gia.
@@ -326,6 +330,7 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
         ev_keydate           TYPE d
         er_loaitaisan        TYPE ry_string
         er_maphongban        TYPE ry_string
+        er_nhamay            TYPE ry_string
       RAISING
         cx_rap_query_provider.
 
@@ -344,6 +349,7 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
         iv_keydate           TYPE d
         ir_loaitaisan        TYPE ry_string
         ir_maphongban        TYPE ry_string
+        ir_nhamay            TYPE ry_string
       EXPORTING
         et_keys              TYPE tt_key
         et_keys_gia          TYPE tt_key_gia
@@ -517,7 +523,8 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                             er_todate            = DATA(lr_todate)
                             ev_keydate           = DATA(lv_keydate)
                             er_loaitaisan        = DATA(lr_loaitaisan)
-                            er_maphongban        = DATA(lr_maphongban) ).
+                            er_maphongban        = DATA(lr_maphongban)
+                            er_nhamay            = DATA(lr_nhamay) ).
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Build Main Data
@@ -534,6 +541,7 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                                iv_keydate           = lv_keydate
                                ir_loaitaisan        = lr_loaitaisan
                                ir_maphongban        = lr_maphongban
+                               ir_nhamay            = lr_nhamay
                      IMPORTING et_keys              = DATA(lt_keys)
                                et_keys_gia          = DATA(lt_keys_gia)
                                et_bases             = DATA(lt_bases)
@@ -686,6 +694,8 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
           ENDLOOP.
         WHEN 'MAPHONGBAN'.
           er_MAPHONGBAN = CORRESPONDING ry_string( ls_filter-range ).
+        WHEN 'NHAMAY'.
+          er_nhamay = CORRESPONDING ry_string( ls_filter-range ).
       ENDCASE.
     ENDLOOP.
   ENDMETHOD.
@@ -809,6 +819,7 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         AND a~FiscalYear            IN @ir_FISCALYEAR
         AND a~AssetClass            IN @ir_loaitaisan
         AND a~AssetCostCenter       IN @ir_maphongban
+        AND a~AssetPlant            IN @ir_nhamay
 
         "Filtering logic asset
         "Logic lọc 1: Ví dụ chạy báo cáo từ tháng 7 → tháng 8. Thì lọc bỏ các tài sản có ngày Deactivation on < 01.07.2026
@@ -855,6 +866,7 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         AND a~FiscalYear            IN @ir_FISCALYEAR
         AND a~AssetClass            IN @ir_loaitaisan
         AND a~AssetCostCenter       IN @ir_maphongban
+        AND a~AssetPlant            IN @ir_nhamay
 
         "Filtering logic asset
         "Logic lọc 1: Ví dụ chạy báo cáo từ tháng 7 → tháng 8. Thì lọc bỏ các tài sản có ngày Deactivation on < 01.07.2026
@@ -940,7 +952,13 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         b~AssetCapitalizationDate AS NgayDuaVaoSuDung,
 
         "Địa điểm sử dụng
-        c~YY1_EvaluationGroup1_FAA AS DiaDiemSuDung
+        c~YY1_EvaluationGroup1_FAA AS DiaDiemSuDung,
+
+        "Ngày bắt đầu sử dụng
+        b~DepreciationStartDate AS NgayBatDauKhauHao,
+
+        "Nhà máy
+        b~AssetPlant AS NhaMay
     INTO TABLE @et_bases.
   ENDMETHOD.
 
@@ -1725,7 +1743,8 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                           er_assetsubnumber    = er_ASSETSUBNUMBER
                           er_postingdate       = er_POSTINGDATE
                           er_loaitaisan        = er_loaitaisan
-                          er_maphongban        = er_maphongban ).
+                          er_maphongban        = er_maphongban
+                          er_nhamay            = er_nhamay ).
 
 
     "2.Build special Params
@@ -1770,6 +1789,7 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                        iv_keydate           = iv_keydate
                        ir_loaitaisan        = ir_loaitaisan
                        ir_maphongban        = ir_maphongban
+                       ir_nhamay            = ir_nhamay
              IMPORTING et_keys              = et_keys
                        et_keys_gia          = et_keys_gia ).
 
@@ -1878,6 +1898,12 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
     "Ngày đưa vào sử dụng
     cs_result-NgayDuaVaoSuDung = is_base-NgayDuaVaoSuDung.
+
+    "Ngày bắt đầu sử dụng
+    cs_result-NgayBatDauKhauHao = is_base-NgayBatDauKhauHao.
+
+    "Nhà máy
+    cs_result-NhaMay = is_base-NhaMay.
   ENDMETHOD.
 
 
