@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZMSG_ASSET_RP</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>zmsg_asset_rp</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZMSG_ASSET_RP</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Ngày báo cáo và Kỳ báo cáo khác nhau khoảng thời gian</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>
