@@ -12,7 +12,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_ce_asset_rp IMPLEMENTATION.
+CLASS ZCL_CE_ASSET_RP IMPLEMENTATION.
 
 
   METHOD if_rap_query_provider~select.
@@ -39,5 +39,4 @@ CLASS zcl_ce_asset_rp IMPLEMENTATION.
         ct_result   = lt_result
     ).
   ENDMETHOD.
-
 ENDCLASS.

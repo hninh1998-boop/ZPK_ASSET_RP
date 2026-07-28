@@ -4,138 +4,6 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
   CREATE PUBLIC INHERITING FROM cx_rap_query_provider .
 
   PUBLIC SECTION.
-    TYPES: tt_result TYPE STANDARD TABLE OF zce_asset_rp,
-           ry_string TYPE RANGE OF string.
-
-    TYPES: BEGIN OF ty_key,
-             CompanyCode       TYPE I_AssetHistorySheetCube-CompanyCode,
-             DepreciationAreas TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             AssetNumber       TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             AssetSubNumber    TYPE I_AssetHistorySheetCube-FixedAsset,
-             FiscalYear        TYPE I_AssetHistorySheetCube-FiscalYear,
-           END OF ty_key,
-           tt_key TYPE STANDARD TABLE OF ty_key WITH EMPTY KEY.
-
-    TYPES: BEGIN OF ty_key_gia,
-             companycode        TYPE I_AssetHistorySheetCube-CompanyCode,
-             depreciationareas  TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             assetnumber        TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             assetsubnumber     TYPE I_AssetHistorySheetCube-FixedAsset,
-             fiscalyear         TYPE I_AssetHistorySheetCube-FiscalYear,
-             accountingdocument TYPE I_AssetHistorySheetCube-accountingdocument,
-             LedgerGLLineItem   TYPE I_AssetHistorySheetCube-LedgerGLLineItem,
-           END OF ty_key_gia,
-           tt_key_gia TYPE STANDARD TABLE OF ty_key_gia WITH EMPTY KEY.
-
-    TYPES: BEGIN OF ty_base,
-             "key fields
-             CompanyCode                 TYPE I_AssetHistorySheetCube-CompanyCode,
-             DepreciationAreas           TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             AssetNumber                 TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             AssetSubNumber              TYPE I_AssetHistorySheetCube-FixedAsset,
-             FiscalYear                  TYPE I_AssetHistorySheetCube-FiscalYear,
-
-             "Base fields
-             MasterFixedAssetDescription TYPE I_MasterFixedAsset-MasterFixedAssetDescription,
-             AssetAdditionalDescription  TYPE I_AssetHistorySheetCube-AssetAdditionalDescription,
-             LoaiTaiSan                  TYPE I_AssetHistorySheetCube-AssetClass,
-             TenLoaiTaiSan               TYPE I_AssetClassText-AssetClassDescription,
-             PlannedUsefulLifeInPeriods  TYPE I_AssetHistorySheetCube-PlannedUsefulLifeInPeriods,
-             PlannedUsefulLifeInYears    TYPE I_AssetHistorySheetCube-PlannedUsefulLifeInYears,
-             DisplayCurrency             TYPE I_AssetHistorySheetCube-DisplayCurrency,
-             MaPhongBan                  TYPE I_AssetHistorySheetCube-AssetCostCenter,
-             TenPhongBan                 TYPE I_CostCenterText-CostCenterDescription,
-             NgayDuaVaoSuDung            TYPE I_AssetHistorySheetCube-AssetCapitalizationDate,
-             DiaDiemSuDung               TYPE I_FixedAsset-YY1_EvaluationGroup1_FAA,
-             NgayBatDauKhauHao           TYPE I_AssetHistorySheetCube-DepreciationStartDate,
-             NhaMay                      TYPE I_AssetHistorySheetCube-AssetPlant,
-           END OF ty_base,
-           tt_base TYPE STANDARD TABLE OF ty_base.
-
-    TYPES: BEGIN OF ty_gia_a,
-             CompanyCode       TYPE I_AssetHistorySheetCube-CompanyCode,
-             DepreciationAreas TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             AssetNumber       TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             AssetSubNumber    TYPE I_AssetHistorySheetCube-FixedAsset,
-             FiscalYear        TYPE I_AssetHistorySheetCube-FiscalYear,
-             NguyenGiaDauKyA   TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             KhauHaoDauKyA     TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-           END OF ty_gia_a,
-           tt_gia_a TYPE STANDARD TABLE OF ty_gia_a.
-
-    TYPES: BEGIN OF ty_gia_b,
-             CompanyCode       TYPE I_AssetHistorySheetCube-CompanyCode,
-             DepreciationAreas TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             AssetNumber       TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             AssetSubNumber    TYPE I_AssetHistorySheetCube-FixedAsset,
-             FiscalYear        TYPE I_AssetHistorySheetCube-FiscalYear,
-             NguyenGiaDauKyB   TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             KhauHaoDauKyB     TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-           END OF ty_gia_b,
-           tt_gia_b TYPE STANDARD TABLE OF ty_gia_b.
-
-    TYPES: BEGIN OF ty_tanggiamgia,
-             CompanyCode       TYPE I_AssetHistorySheetCube-CompanyCode,
-             DepreciationAreas TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             AssetNumber       TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             AssetSubNumber    TYPE I_AssetHistorySheetCube-FixedAsset,
-             FiscalYear        TYPE I_AssetHistorySheetCube-FiscalYear,
-             TangNguyenGia     TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             GiamNguyenGia     TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             TangKhauHao       TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             GiamKhauHao       TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-           END OF ty_tanggiamgia,
-           tt_tanggiamgia TYPE STANDARD TABLE OF ty_tanggiamgia.
-
-    TYPES: tt_config TYPE HASHED TABLE OF zi_asset_rp
-         WITH UNIQUE KEY AccountDetermination AccountAssignmentFor.
-
-    TYPES: BEGIN OF ty_temp_giadaukyb,
-             companycode        TYPE I_AssetHistorySheetCube-companycode,
-             depreciationareas  TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             assetnumber        TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             assetsubnumber     TYPE I_AssetHistorySheetCube-FixedAsset,
-             fiscalyear         TYPE I_AssetHistorySheetCube-FiscalYear,
-             accountingdocument TYPE I_AssetHistorySheetCube-AccountingDocument,
-             LedgerGLLineItem   TYPE I_AssetHistorySheetCube-LedgerGLLineItem,
-             nguyengiadaukyb    TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             khauhaodaukyb      TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-           END OF ty_temp_giadaukyb,
-           tt_temp_giadaukyb TYPE STANDARD TABLE OF ty_temp_giadaukyb WITH EMPTY KEY.
-
-    TYPES: BEGIN OF ty_reversal_doc,
-             AccountingDocument        TYPE I_GLAccountLineItemSemTag-AccountingDocument,
-             AccountingDocumentItem    TYPE I_GLAccountLineItemSemTag-LedgerGLLineItem,
-             ReversalReferenceDocument TYPE I_GLAccountLineItemSemTag-ReversalReferenceDocument,
-             FiscalYear                TYPE I_GLAccountLineItemSemTag-FiscalYear,
-             postingdate               TYPE I_GLAccountLineItemSemTag-postingdate,
-           END OF ty_reversal_doc,
-           tt_reversal_doc TYPE STANDARD TABLE OF ty_reversal_doc WITH EMPTY KEY.
-
-    TYPES: BEGIN OF ty_origin_rev_doc,
-             CompanyCode               TYPE I_JournalEntry-CompanyCode,
-             FiscalYear                TYPE I_JournalEntry-FiscalYear,
-             AccountingDocument        TYPE I_JournalEntry-AccountingDocument,
-             OriginalReferenceDocument TYPE I_JournalEntry-OriginalReferenceDocument,
-             PostingDate               TYPE I_JournalEntry-PostingDate,
-           END OF ty_origin_rev_doc,
-           tt_origin_rev_doc TYPE STANDARD TABLE OF ty_origin_rev_doc.
-
-    TYPES: BEGIN OF ty_temp_tanggiamgia,
-             companycode        TYPE I_AssetHistorySheetCube-companycode,
-             depreciationareas  TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-             assetnumber        TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-             assetsubnumber     TYPE I_AssetHistorySheetCube-FixedAsset,
-             fiscalyear         TYPE I_AssetHistorySheetCube-FiscalYear,
-             accountingdocument TYPE I_AssetHistorySheetCube-AccountingDocument,
-             LedgerGLLineItem   TYPE I_AssetHistorySheetCube-LedgerGLLineItem,
-             TangNguyenGia      TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             GiamNguyenGia      TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             TangKhauHao        TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-             GiamKhauHao        TYPE I_AssetHistorySheetCube-AmountInDisplayCurrency,
-           END OF ty_temp_tanggiamgia,
-           tt_temp_tanggiamgia TYPE STANDARD TABLE OF ty_temp_tanggiamgia WITH EMPTY KEY.
-
     CLASS-METHODS requested
       IMPORTING
         io_request TYPE REF TO if_rap_query_request
@@ -147,13 +15,13 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
         io_request  TYPE REF TO if_rap_query_request
         io_response TYPE REF TO if_rap_query_response
       CHANGING
-        ct_result   TYPE tt_result.
+        ct_result   TYPE zcl_ce_asset_rp_top=>tt_result.
 
     CLASS-METHODS select
       IMPORTING
         it_filters TYPE if_rap_query_filter=>tt_name_range_pairs
       EXPORTING
-        et_result  TYPE tt_result
+        et_result  TYPE zcl_ce_asset_rp_top=>tt_result
       RAISING
         cx_rap_query_provider.
 
@@ -163,152 +31,152 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
       IMPORTING
         it_filters           TYPE if_rap_query_filter=>tt_name_range_pairs
       EXPORTING
-        er_companycode       TYPE ry_string
-        er_DEPRECIATIONAREAS TYPE ry_string
-        er_FISCALYEAR        TYPE ry_string
-        er_PERIODS           TYPE ry_string
-        er_ASSETNUMBER       TYPE ry_string
-        er_ASSETSUBNUMBER    TYPE ry_string
-        er_POSTINGDATE       TYPE ry_string
-        er_loaitaisan        TYPE ry_string
-        er_maphongban        TYPE ry_string
-        er_nhamay            TYPE ry_string.
+        er_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+        er_DEPRECIATIONAREAS TYPE zcl_ce_asset_rp_top=>ry_string
+        er_FISCALYEAR        TYPE zcl_ce_asset_rp_top=>ry_string
+        er_PERIODS           TYPE zcl_ce_asset_rp_top=>ry_string
+        er_ASSETNUMBER       TYPE zcl_ce_asset_rp_top=>ry_string
+        er_ASSETSUBNUMBER    TYPE zcl_ce_asset_rp_top=>ry_string
+        er_POSTINGDATE       TYPE zcl_ce_asset_rp_top=>ry_string
+        er_loaitaisan        TYPE zcl_ce_asset_rp_top=>ry_string
+        er_maphongban        TYPE zcl_ce_asset_rp_top=>ry_string
+        er_nhamay            TYPE zcl_ce_asset_rp_top=>ry_string.
 
     CLASS-METHODS get_fiscal_year
       IMPORTING
-        ir_FISCALYEAR TYPE ry_string
+        ir_FISCALYEAR TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
         ev_fiscalyear TYPE string.
 
     CLASS-METHODS get_periods
       IMPORTING
-        ir_postingdate TYPE ry_string
+        ir_postingdate TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
         ev_periods     TYPE string.
 
     CLASS-METHODS get_fromto
       IMPORTING
-        ir_postingdate TYPE ry_string
-        ir_periods     TYPE ry_string
+        ir_postingdate TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_periods     TYPE zcl_ce_asset_rp_top=>ry_string
         iv_fiscalyear  TYPE string
         iv_periods     TYPE string
       EXPORTING
-        er_fromdate    TYPE ry_string
-        er_todate      TYPE ry_string
+        er_fromdate    TYPE zcl_ce_asset_rp_top=>ry_string
+        er_todate      TYPE zcl_ce_asset_rp_top=>ry_string
         ev_keydate     TYPE d.
 
     CLASS-METHODS get_key
       IMPORTING
-        ir_companycode       TYPE ry_string
-        ir_depreciationareas TYPE ry_string
-        ir_assetnumber       TYPE ry_string
-        ir_ASSETSUBNUMBER    TYPE ry_string
-        ir_FISCALYEAR        TYPE ry_string
-        ir_postingdate       TYPE ry_string
-        ir_fromdate          TYPE ry_string
-        ir_todate            TYPE ry_string
+        ir_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_depreciationareas TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_assetnumber       TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_ASSETSUBNUMBER    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_FISCALYEAR        TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_postingdate       TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_fromdate          TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_todate            TYPE zcl_ce_asset_rp_top=>ry_string
         iv_fiscalyear        TYPE string
         iv_periods           TYPE string
         iv_keydate           TYPE d
-        ir_loaitaisan        TYPE ry_string
-        ir_maphongban        TYPE ry_string
-        ir_nhamay            TYPE ry_string
+        ir_loaitaisan        TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_maphongban        TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_nhamay            TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_keys              TYPE tt_key
-        et_keys_gia          TYPE tt_key_gia.
+        et_keys              TYPE zcl_ce_asset_rp_top=>tt_key
+        et_keys_gia          TYPE zcl_ce_asset_rp_top=>tt_key_gia.
 
     CLASS-METHODS get_base
       IMPORTING
-        it_keys       TYPE tt_key
+        it_keys       TYPE zcl_ce_asset_rp_top=>tt_key
         iv_fiscalyear TYPE string
         iv_periods    TYPE string
         iv_keydate    TYPE d
       EXPORTING
-        et_bases      TYPE tt_base.
+        et_bases      TYPE zcl_ce_asset_rp_top=>tt_base.
 
     CLASS-METHODS get_result
       IMPORTING
-        it_keys        TYPE tt_key
-        it_bases       TYPE tt_base
-        it_giadaukya   TYPE tt_gia_a
-        it_giadaukyb   TYPE tt_gia_b
-        it_tanggiamgia TYPE tt_tanggiamgia
-        it_config      TYPE tt_config
+        it_keys        TYPE zcl_ce_asset_rp_top=>tt_key
+        it_bases       TYPE zcl_ce_asset_rp_top=>tt_base
+        it_giadaukya   TYPE zcl_ce_asset_rp_top=>tt_gia_a
+        it_giadaukyb   TYPE zcl_ce_asset_rp_top=>tt_gia_b
+        it_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia
+        it_config      TYPE zcl_ce_asset_rp_top=>tt_config
       EXPORTING
-        et_result      TYPE tt_result.
+        et_result      TYPE zcl_ce_asset_rp_top=>tt_result.
 
     CLASS-METHODS get_giadaukya
       IMPORTING
-        it_keys       TYPE tt_key
+        it_keys       TYPE zcl_ce_asset_rp_top=>tt_key
         iv_fiscalyear TYPE string
         iv_periods    TYPE string
         iv_keydate    TYPE d
-        ir_fromdate   TYPE ry_string
-        ir_todate     TYPE ry_string
+        ir_fromdate   TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_todate     TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_giadaukya  TYPE tt_gia_a.
+        et_giadaukya  TYPE zcl_ce_asset_rp_top=>tt_gia_a.
 
     CLASS-METHODS get_giadaukyb
       IMPORTING
-        ir_fromdate    TYPE ry_string
-        ir_todate      TYPE ry_string
-        it_keys        TYPE tt_key
-        it_keys_gia    TYPE tt_key_gia
+        ir_fromdate    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_todate      TYPE zcl_ce_asset_rp_top=>ry_string
+        it_keys        TYPE zcl_ce_asset_rp_top=>tt_key
+        it_keys_gia    TYPE zcl_ce_asset_rp_top=>tt_key_gia
         iv_fiscalyear  TYPE string
         iv_periods     TYPE string
         iv_keydate     TYPE d
-        ir_companycode TYPE ry_string
+        ir_companycode TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_giadaukyb   TYPE tt_gia_b.
+        et_giadaukyb   TYPE zcl_ce_asset_rp_top=>tt_gia_b.
 
     CLASS-METHODS get_giadauky
       IMPORTING
-        ir_fromdate    TYPE ry_string
-        ir_todate      TYPE ry_string
-        it_keys        TYPE tt_key
-        it_keys_gia    TYPE tt_key_gia
+        ir_fromdate    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_todate      TYPE zcl_ce_asset_rp_top=>ry_string
+        it_keys        TYPE zcl_ce_asset_rp_top=>tt_key
+        it_keys_gia    TYPE zcl_ce_asset_rp_top=>tt_key_gia
         iv_fiscalyear  TYPE string
         iv_periods     TYPE string
         iv_keydate     TYPE d
-        ir_companycode TYPE ry_string
+        ir_companycode TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_giadaukya   TYPE tt_gia_a
-        et_giadaukyb   TYPE tt_gia_b.
+        et_giadaukya   TYPE zcl_ce_asset_rp_top=>tt_gia_a
+        et_giadaukyb   TYPE zcl_ce_asset_rp_top=>tt_gia_b.
 
     CLASS-METHODS get_tanggiamgia
       IMPORTING
-        ir_fromdate    TYPE ry_string
-        ir_todate      TYPE ry_string
-        it_keys        TYPE tt_key
-        it_keys_gia    TYPE tt_key_gia
+        ir_fromdate    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_todate      TYPE zcl_ce_asset_rp_top=>ry_string
+        it_keys        TYPE zcl_ce_asset_rp_top=>tt_key
+        it_keys_gia    TYPE zcl_ce_asset_rp_top=>tt_key_gia
         iv_fiscalyear  TYPE string
         iv_periods     TYPE string
         iv_keydate     TYPE d
-        ir_companycode TYPE ry_string
+        ir_companycode TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_tanggiamgia TYPE tt_tanggiamgia.
+        et_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia.
 
     CLASS-METHODS modify_periods_postingdate
       IMPORTING
-        ir_fiscalyear  TYPE ry_string
+        ir_fiscalyear  TYPE zcl_ce_asset_rp_top=>ry_string
       CHANGING
-        cr_periods     TYPE ry_string
-        cr_postingdate TYPE ry_string
+        cr_periods     TYPE zcl_ce_asset_rp_top=>ry_string
+        cr_postingdate TYPE zcl_ce_asset_rp_top=>ry_string
       RAISING
         cx_rap_query_provider.
 
     CLASS-METHODS build_special_params
       IMPORTING
-        ir_fiscalyear  TYPE ry_string
+        ir_fiscalyear  TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
         ev_fiscalyear  TYPE string
         ev_periods     TYPE string
-        er_fromdate    TYPE ry_string
-        er_todate      TYPE ry_string
+        er_fromdate    TYPE zcl_ce_asset_rp_top=>ry_string
+        er_todate      TYPE zcl_ce_asset_rp_top=>ry_string
         ev_keydate     TYPE d
       CHANGING
-        cr_periods     TYPE ry_string
-        cr_postingdate TYPE ry_string
+        cr_periods     TYPE zcl_ce_asset_rp_top=>ry_string
+        cr_postingdate TYPE zcl_ce_asset_rp_top=>ry_string
       RAISING
         cx_rap_query_provider.
 
@@ -316,90 +184,90 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
       IMPORTING
         it_filters           TYPE  if_rap_query_filter=>tt_name_range_pairs
       EXPORTING
-        er_companycode       TYPE ry_string
-        er_depreciationareas TYPE ry_string
-        er_fiscalyear        TYPE ry_string
-        er_periods           TYPE ry_string
-        er_assetnumber       TYPE ry_string
-        er_assetsubnumber    TYPE ry_string
-        er_postingdate       TYPE ry_string
+        er_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+        er_depreciationareas TYPE zcl_ce_asset_rp_top=>ry_string
+        er_fiscalyear        TYPE zcl_ce_asset_rp_top=>ry_string
+        er_periods           TYPE zcl_ce_asset_rp_top=>ry_string
+        er_assetnumber       TYPE zcl_ce_asset_rp_top=>ry_string
+        er_assetsubnumber    TYPE zcl_ce_asset_rp_top=>ry_string
+        er_postingdate       TYPE zcl_ce_asset_rp_top=>ry_string
         ev_fiscalyear        TYPE string
         ev_periods           TYPE string
-        er_fromdate          TYPE ry_string
-        er_todate            TYPE ry_string
+        er_fromdate          TYPE zcl_ce_asset_rp_top=>ry_string
+        er_todate            TYPE zcl_ce_asset_rp_top=>ry_string
         ev_keydate           TYPE d
-        er_loaitaisan        TYPE ry_string
-        er_maphongban        TYPE ry_string
-        er_nhamay            TYPE ry_string
+        er_loaitaisan        TYPE zcl_ce_asset_rp_top=>ry_string
+        er_maphongban        TYPE zcl_ce_asset_rp_top=>ry_string
+        er_nhamay            TYPE zcl_ce_asset_rp_top=>ry_string
       RAISING
         cx_rap_query_provider.
 
     CLASS-METHODS build_main_data
       IMPORTING
-        ir_companycode       TYPE ry_string
-        ir_depreciationareas TYPE ry_string
-        ir_assetnumber       TYPE ry_string
-        ir_assetsubnumber    TYPE ry_string
-        ir_fiscalyear        TYPE ry_string
-        ir_postingdate       TYPE ry_string
-        ir_fromdate          TYPE ry_string
-        ir_todate            TYPE ry_string
+        ir_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_depreciationareas TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_assetnumber       TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_assetsubnumber    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_fiscalyear        TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_postingdate       TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_fromdate          TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_todate            TYPE zcl_ce_asset_rp_top=>ry_string
         iv_fiscalyear        TYPE string
         iv_periods           TYPE string
         iv_keydate           TYPE d
-        ir_loaitaisan        TYPE ry_string
-        ir_maphongban        TYPE ry_string
-        ir_nhamay            TYPE ry_string
+        ir_loaitaisan        TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_maphongban        TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_nhamay            TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_keys              TYPE tt_key
-        et_keys_gia          TYPE tt_key_gia
-        et_bases             TYPE tt_base
-        et_giadaukya         TYPE tt_gia_a
-        et_giadaukyb         TYPE tt_gia_b
-        et_tanggiamgia       TYPE tt_tanggiamgia
-        et_config            TYPE tt_config.
+        et_keys              TYPE zcl_ce_asset_rp_top=>tt_key
+        et_keys_gia          TYPE zcl_ce_asset_rp_top=>tt_key_gia
+        et_bases             TYPE zcl_ce_asset_rp_top=>tt_base
+        et_giadaukya         TYPE zcl_ce_asset_rp_top=>tt_gia_a
+        et_giadaukyb         TYPE zcl_ce_asset_rp_top=>tt_gia_b
+        et_tanggiamgia       TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia
+        et_config            TYPE zcl_ce_asset_rp_top=>tt_config.
 
     CLASS-METHODS get_result_key
       IMPORTING
-        is_key    TYPE ty_key
+        is_key    TYPE zcl_ce_asset_rp_top=>ty_key
         iv_tabix  TYPE i
       CHANGING
         cs_result TYPE zce_asset_rp.
 
     CLASS-METHODS get_result_base
       IMPORTING
-        is_base   TYPE ty_base
+        is_base   TYPE zcl_ce_asset_rp_top=>ty_base
       CHANGING
         cs_result TYPE zce_asset_rp.
 
     CLASS-METHODS get_result_ztable
       IMPORTING
-        is_base   TYPE ty_base
-        it_config TYPE tt_config
+        is_base   TYPE zcl_ce_asset_rp_top=>ty_base
+        it_config TYPE zcl_ce_asset_rp_top=>tt_config
       CHANGING
         cs_result TYPE zce_asset_rp.
 
     CLASS-METHODS get_result_gia
       IMPORTING
-        it_giadaukya   TYPE tt_gia_a
-        it_giadaukyb   TYPE tt_gia_b
-        it_tanggiamgia TYPE tt_tanggiamgia
-        is_key         TYPE ty_key
+        it_giadaukya   TYPE zcl_ce_asset_rp_top=>tt_gia_a
+        it_giadaukyb   TYPE zcl_ce_asset_rp_top=>tt_gia_b
+        it_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia
+        is_key         TYPE zcl_ce_asset_rp_top=>ty_key
       CHANGING
         cs_result      TYPE zce_asset_rp.
 
     CLASS-METHODS get_result_giadauky
       IMPORTING
-        it_giadaukya TYPE tt_gia_a
-        it_giadaukyb TYPE tt_gia_b
-        is_key       TYPE ty_key
+        it_giadaukya TYPE zcl_ce_asset_rp_top=>tt_gia_a
+        it_giadaukyb TYPE zcl_ce_asset_rp_top=>tt_gia_b
+        is_key       TYPE zcl_ce_asset_rp_top=>ty_key
       CHANGING
         cs_result    TYPE zce_asset_rp.
 
     CLASS-METHODS get_result_tanggiamgia
       IMPORTING
-        it_tanggiamgia TYPE tt_tanggiamgia
-        is_key         TYPE ty_key
+        it_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia
+        is_key         TYPE zcl_ce_asset_rp_top=>ty_key
       CHANGING
         cs_result      TYPE zce_asset_rp.
 
@@ -409,103 +277,232 @@ CLASS zcl_ce_asset_rp_implement DEFINITION
 
     CLASS-METHODS get_config
       IMPORTING
-        it_bases  TYPE tt_base
+        it_bases  TYPE zcl_ce_asset_rp_top=>tt_base
       EXPORTING
-        et_config TYPE tt_config.
+        et_config TYPE zcl_ce_asset_rp_top=>tt_config.
 
     CLASS-METHODS validate_postingdate_periods
       IMPORTING
-        ir_fiscalyear  TYPE ry_string
-        ir_postingdate TYPE ry_string
-        ir_periods     TYPE ry_string
+        ir_fiscalyear  TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_postingdate TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_periods     TYPE zcl_ce_asset_rp_top=>ry_string
       RAISING
         cx_rap_query_provider.
 
     CLASS-METHODS modify_periods
       CHANGING
-        cr_periods TYPE ry_string.
+        cr_periods TYPE zcl_ce_asset_rp_top=>ry_string.
 
     CLASS-METHODS modify_postingdate
       IMPORTING
-        ir_fiscalyear  TYPE ry_string
-        ir_periods     TYPE ry_string
+        ir_fiscalyear  TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_periods     TYPE zcl_ce_asset_rp_top=>ry_string
       CHANGING
-        cr_postingdate TYPE ry_string.
+        cr_postingdate TYPE zcl_ce_asset_rp_top=>ry_string.
 
     CLASS-METHODS get_params_giadaukyb
       IMPORTING
-        ir_fromdate      TYPE ry_string
+        ir_fromdate      TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        er_b_postingdate TYPE ry_string.
+        er_b_postingdate TYPE zcl_ce_asset_rp_top=>ry_string.
 
     CLASS-METHODS get_temp_giadaukyb
       IMPORTING
-        it_keys_gia       TYPE tt_key_gia
+        it_keys_gia       TYPE zcl_ce_asset_rp_top=>tt_key_gia
         iv_fiscalyear     TYPE string
         iv_periods        TYPE string
         iv_keydate        TYPE d
-        ir_b_postingdate  TYPE ry_string
+        ir_b_postingdate  TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_temp_giadaukyb TYPE tt_temp_giadaukyb.
+        et_temp_giadaukyb TYPE zcl_ce_asset_rp_top=>tt_temp_giadaukyb.
 
     CLASS-METHODS get_reversal_doc
       IMPORTING
-        it_keys_gia     TYPE tt_key_gia
+        it_keys_gia     TYPE zcl_ce_asset_rp_top=>tt_key_gia
       EXPORTING
-        et_reversal_doc TYPE tt_reversal_doc.
+        et_reversal_doc TYPE zcl_ce_asset_rp_top=>tt_reversal_doc.
 
     CLASS-METHODS get_giadaukyb_final
       IMPORTING
-        it_temp_giadaukyb TYPE tt_temp_giadaukyb
-      EXPORTING
-        et_giadaukyb      TYPE tt_gia_b.
+        it_temp_giadaukyb TYPE zcl_ce_asset_rp_top=>tt_temp_giadaukyb
+      CHANGING
+        ct_giadaukyb      TYPE zcl_ce_asset_rp_top=>tt_gia_b.
 
     CLASS-METHODS get_origin_rev_giadaukyb
       IMPORTING
-        it_reversal_doc   TYPE tt_reversal_doc
-        ir_companycode    TYPE ry_string
-        ir_b_postingdate  TYPE ry_string
+        it_reversal_doc   TYPE zcl_ce_asset_rp_top=>tt_reversal_doc
+        ir_companycode    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_b_postingdate  TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
-        et_origin_rev_doc TYPE tt_origin_rev_doc.
+        et_origin_rev_doc TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc.
 
     CLASS-METHODS get_params_tanggiamgia
       IMPORTING
-        ir_fromdate TYPE ry_string
-        ir_todate   TYPE ry_string
+        ir_fromdate TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_todate   TYPE zcl_ce_asset_rp_top=>ry_string
       EXPORTING
         ev_fromdate TYPE string
         ev_todate   TYPE string.
 
     CLASS-METHODS get_temp_tanggiamgia
       IMPORTING
-        it_keys_gia         TYPE tt_key_gia
+        it_keys_gia         TYPE zcl_ce_asset_rp_top=>tt_key_gia
         iv_fiscalyear       TYPE string
         iv_periods          TYPE string
         iv_keydate          TYPE d
         iv_fromdate         TYPE string
         iv_todate           TYPE string
       EXPORTING
-        et_temp_tanggiamgia TYPE tt_temp_tanggiamgia.
+        et_temp_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_temp_tanggiamgia.
 
     CLASS-METHODS get_tanggiamgia_final
       IMPORTING
-        it_temp_tanggiamgia TYPE tt_temp_tanggiamgia
-      EXPORTING
-        et_tanggiamgia      TYPE tt_tanggiamgia.
+        it_temp_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_temp_tanggiamgia
+      CHANGING
+        ct_tanggiamgia      TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia.
 
     CLASS-METHODS get_origin_rev_tanggiamgia
       IMPORTING
-        it_reversal_doc   TYPE tt_reversal_doc
-        ir_companycode    TYPE ry_string
+        it_reversal_doc   TYPE zcl_ce_asset_rp_top=>tt_reversal_doc
+        ir_companycode    TYPE zcl_ce_asset_rp_top=>ry_string
         iv_fromdate       TYPE string
         iv_todate         TYPE string
       EXPORTING
-        et_origin_rev_doc TYPE tt_origin_rev_doc.
+        et_origin_rev_doc TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc.
+
+    CLASS-METHODS get_tanggiamgia_base_rev_doc
+      IMPORTING
+        it_reversal_doc     TYPE zcl_ce_asset_rp_top=>tt_reversal_doc
+        ir_companycode      TYPE zcl_ce_asset_rp_top=>ry_string
+        iv_fromdate         TYPE string
+        iv_todate           TYPE string
+      CHANGING
+        ct_temp_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_temp_tanggiamgia
+        ct_tanggiamgia      TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia.
+
+    CLASS-METHODS get_reversal_doc_wa
+      IMPORTING
+        it_keys_gia        TYPE zcl_ce_asset_rp_top=>tt_key_gia
+      EXPORTING
+        et_reversal_doc_wa TYPE zcl_ce_asset_rp_top=>tt_reversal_doc_wa.
+
+    CLASS-METHODS get_ori_rev_doc_wa_tanggiamgia
+      IMPORTING
+        it_reversal_doc_wa   TYPE zcl_ce_asset_rp_top=>tt_reversal_doc_wa
+        iv_fromdate          TYPE string
+        iv_todate            TYPE string
+      EXPORTING
+        et_origin_rev_doc_wa TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc_wa.
+
+    CLASS-METHODS get_tg_base_ori_rev_doc
+      IMPORTING
+        it_origin_rev_doc_wa TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc_wa
+        ir_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+      CHANGING
+        ct_temp_tanggiamgia  TYPE zcl_ce_asset_rp_top=>tt_temp_tanggiamgia
+        ct_tanggiamgia       TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia.
+
+    CLASS-METHODS get_rev_matdoc_wa_tanggiamgia
+      IMPORTING
+        it_origin_rev_doc_wa TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc_wa
+        ir_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+        iv_fromdate          TYPE string
+        iv_todate            TYPE string
+      EXPORTING
+        et_rev_matdoc_wa     TYPE zcl_ce_asset_rp_top=>tt_rev_matdoc_wa.
+
+    CLASS-METHODS get_tg_base_rev_matdoc_wa
+      IMPORTING
+        it_rev_matdoc_wa    TYPE zcl_ce_asset_rp_top=>tt_rev_matdoc_wa
+        ir_companycode      TYPE zcl_ce_asset_rp_top=>ry_string
+      CHANGING
+        ct_temp_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_temp_tanggiamgia
+        ct_tanggiamgia      TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia.
+
+    CLASS-METHODS case_fi_rev_doc_tg
+      IMPORTING
+        it_keys_gia         TYPE zcl_ce_asset_rp_top=>tt_key_gia
+        ir_companycode      TYPE zcl_ce_asset_rp_top=>ry_string
+        iv_fromdate         TYPE string
+        iv_todate           TYPE string
+      CHANGING
+        ct_temp_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_temp_tanggiamgia
+        ct_tanggiamgia      TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia.
+
+    CLASS-METHODS case_wa_rev_doc_tg
+      IMPORTING
+        it_keys_gia         TYPE zcl_ce_asset_rp_top=>tt_key_gia
+        ir_companycode      TYPE zcl_ce_asset_rp_top=>ry_string
+        iv_fromdate         TYPE string
+        iv_todate           TYPE string
+      CHANGING
+        ct_temp_tanggiamgia TYPE zcl_ce_asset_rp_top=>tt_temp_tanggiamgia
+        ct_tanggiamgia      TYPE zcl_ce_asset_rp_top=>tt_tanggiamgia.
+
+    CLASS-METHODS case_fi_rev_doc_dk
+      IMPORTING
+        it_keys_gia       TYPE zcl_ce_asset_rp_top=>tt_key_gia
+        ir_companycode    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_b_postingdate  TYPE zcl_ce_asset_rp_top=>ry_string
+      CHANGING
+        ct_temp_giadaukyb TYPE zcl_ce_asset_rp_top=>tt_temp_giadaukyb
+        ct_giadaukyb      TYPE zcl_ce_asset_rp_top=>tt_gia_b.
+
+    CLASS-METHODS case_wa_rev_doc_dk
+      IMPORTING
+        it_keys_gia       TYPE zcl_ce_asset_rp_top=>tt_key_gia
+        ir_companycode    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_b_postingdate  TYPE zcl_ce_asset_rp_top=>ry_string
+      CHANGING
+        ct_temp_giadaukyb TYPE zcl_ce_asset_rp_top=>tt_temp_giadaukyb
+        ct_giadaukyb      TYPE zcl_ce_asset_rp_top=>tt_gia_b.
+
+    CLASS-METHODS get_dauky_base_rev_doc
+      IMPORTING
+        it_reversal_doc   TYPE zcl_ce_asset_rp_top=>tt_reversal_doc
+        ir_companycode    TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_b_postingdate  TYPE zcl_ce_asset_rp_top=>ry_string
+      CHANGING
+        ct_temp_giadaukyb TYPE zcl_ce_asset_rp_top=>tt_temp_giadaukyb
+        ct_giadaukyb      TYPE zcl_ce_asset_rp_top=>tt_gia_b.
+
+    CLASS-METHODS get_ori_rev_doc_wa_dk
+      IMPORTING
+        it_reversal_doc_wa   TYPE zcl_ce_asset_rp_top=>tt_reversal_doc_wa
+        ir_b_postingdate     TYPE zcl_ce_asset_rp_top=>ry_string
+      EXPORTING
+        et_origin_rev_doc_wa TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc_wa.
+
+    CLASS-METHODS get_dk_base_ori_rev_doc
+      IMPORTING
+        it_origin_rev_doc_wa TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc_wa
+        ir_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+      CHANGING
+        ct_temp_giadaukyb    TYPE zcl_ce_asset_rp_top=>tt_temp_giadaukyb
+        ct_giadaukyb         TYPE zcl_ce_asset_rp_top=>tt_gia_b.
+
+    CLASS-METHODS get_rev_matdoc_wa_dk
+      IMPORTING
+        it_origin_rev_doc_wa TYPE zcl_ce_asset_rp_top=>tt_origin_rev_doc_wa
+        ir_companycode       TYPE zcl_ce_asset_rp_top=>ry_string
+        ir_b_postingdate     TYPE zcl_ce_asset_rp_top=>ry_string
+      EXPORTING
+        et_rev_matdoc_wa     TYPE zcl_ce_asset_rp_top=>tt_rev_matdoc_wa.
+
+    CLASS-METHODS get_dk_base_rev_matdoc_wa
+      IMPORTING
+        it_rev_matdoc_wa  TYPE zcl_ce_asset_rp_top=>tt_rev_matdoc_wa
+        ir_companycode    TYPE zcl_ce_asset_rp_top=>ry_string
+      CHANGING
+        ct_temp_giadaukyb TYPE zcl_ce_asset_rp_top=>tt_temp_giadaukyb
+        ct_giadaukyb      TYPE zcl_ce_asset_rp_top=>tt_gia_b.
 ENDCLASS.
 
 
 
 CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
+
+
   METHOD select.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Build Params
@@ -575,6 +572,10 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
   METHOD requested.
     TRY.
         et_filters = io_request->get_filter( )->get_as_ranges( ).
@@ -582,6 +583,12 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         "handle exception
     ENDTRY.
   ENDMETHOD.
+
+
+
+
+
+
 
 
 
@@ -654,36 +661,25 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
-
-
-
-
   METHOD get_params.
     LOOP AT it_filters INTO DATA(ls_filter).
       CASE ls_filter-name.
         WHEN 'COMPANYCODE'.
-          er_COMPANYCODE = CORRESPONDING ry_string( ls_filter-range ).
+          er_COMPANYCODE = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'DEPRECIATIONAREAS'.
-          er_DEPRECIATIONAREAS = CORRESPONDING ry_string( ls_filter-range ).
+          er_DEPRECIATIONAREAS = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'FISCALYEAR'.
-          er_FISCALYEAR = CORRESPONDING ry_string( ls_filter-range ).
+          er_FISCALYEAR = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'PERIODS'.
-          er_PERIODS = CORRESPONDING ry_string( ls_filter-range ).
+          er_PERIODS = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'ASSETNUMBER'.
-          er_ASSETNUMBER = CORRESPONDING ry_string( ls_filter-range ).
+          er_ASSETNUMBER = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'ASSETSUBNUMBER'.
-          er_ASSETSUBNUMBER = CORRESPONDING ry_string( ls_filter-range ).
+          er_ASSETSUBNUMBER = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'POSTINGDATE'.
-          er_POSTINGDATE = CORRESPONDING ry_string( ls_filter-range ).
+          er_POSTINGDATE = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'LOAITAISAN'.
-          er_loaitaisan = CORRESPONDING ry_string( ls_filter-range ).
+          er_loaitaisan = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
           LOOP AT er_loaitaisan ASSIGNING FIELD-SYMBOL(<lfs_loaitaisan>).
             IF <lfs_loaitaisan>-low IS NOT INITIAL.
               <lfs_loaitaisan>-low = to_upper( <lfs_loaitaisan>-low ).
@@ -693,23 +689,12 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
             ENDIF.
           ENDLOOP.
         WHEN 'MAPHONGBAN'.
-          er_MAPHONGBAN = CORRESPONDING ry_string( ls_filter-range ).
+          er_MAPHONGBAN = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
         WHEN 'NHAMAY'.
-          er_nhamay = CORRESPONDING ry_string( ls_filter-range ).
+          er_nhamay = CORRESPONDING zcl_ce_asset_rp_top=>ry_string( ls_filter-range ).
       ENDCASE.
     ENDLOOP.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD get_fiscal_year.
@@ -719,50 +704,11 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
   METHOD get_periods.
     ev_periods = COND #( WHEN ir_postingdate[ 1 ]-high IS NOT INITIAL
                          THEN ir_postingdate[ 1 ]-high+4(2)
                          ELSE ir_postingdate[ 1 ]-low+4(2) ).
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD get_fromto.
@@ -781,19 +727,6 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
     <lfs_todate>-option = 'LT'.
     <lfs_todate>-low    = lv_to_raw.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD get_key.
@@ -893,17 +826,6 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
-
-
-
-
   METHOD get_base.
     SELECT FROM @it_keys AS a
     LEFT JOIN I_AssetHistorySheetCube(
@@ -963,14 +885,6 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
-
   METHOD get_result.
     LOOP AT it_keys INTO DATA(ls_key).
       DATA(lv_tabix) = sy-tabix.
@@ -1005,18 +919,6 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                        CHANGING cs_result      = <lfs_result> ).
     ENDLOOP.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD get_giadaukya.
@@ -1054,33 +956,7 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
             THEN b~AmountInDisplayCurrency ELSE 0 END )
             AS KhauHaoDauKyA
     WHERE
-    b~AssetAccountingSortedKeyFigure IN ( '000001-0000700110', '000013-0000790200' )
-*        NOT EXISTS (
-*            SELECT 1 FROM I_GLAccountLineItemSemTag AS c1
-*            INNER JOIN I_JournalEntry AS jev
-*                ON jev~CompanyCode = c1~CompanyCode
-*               AND jev~FiscalYear  = c1~FiscalYear
-*               AND substring( jev~OriginalReferenceDocument, 1, 10 ) = c1~ReversalReferenceDocument
-*             INNER JOIN I_GLAccountLineItemSemTag AS c2
-*                ON c2~Ledger                = c1~Ledger
-*               AND c2~CompanyCode           = c1~CompanyCode
-*               AND c2~FiscalYear            = c1~FiscalYear
-*               AND c2~AssetDepreciationArea = c1~AssetDepreciationArea
-*               AND c2~MasterFixedAsset      = c1~MasterFixedAsset
-*               AND c2~FixedAsset            = c1~FixedAsset
-*               AND c2~AccountingDocument    = jev~AccountingDocument
-*            WHERE c1~Ledger                    = '0L'
-*              AND c1~CompanyCode               = b~CompanyCode
-*              AND c1~AssetDepreciationArea     = b~AssetDepreciationArea
-*              AND c1~MasterFixedAsset          = b~MasterFixedAsset
-*              AND c1~FixedAsset                = b~FixedAsset
-*              AND c1~AccountingDocument        = b~AccountingDocument
-*              AND c1~ReversalReferenceDocument IS NOT INITIAL
-*              AND ( c1~IsReversal  IS NOT INITIAL
-*                 OR c1~IsReversed IS NOT INITIAL )
-*              AND c2~PostingDate               >= @lv_fromdate
-*              AND c2~PostingDate               <  @lv_todate
-*        )
+        b~AssetAccountingSortedKeyFigure IN ( '000001-0000700110', '000013-0000790200' )
     GROUP BY
         a~CompanyCode,
         a~DepreciationAreas,
@@ -1088,177 +964,19 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         a~AssetSubNumber,
         a~FiscalYear
     INTO TABLE @et_giadaukya.
-
-*    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-*    DATA(lv_fromdate) = ir_fromdate[ 1 ]-low.
-*    DATA(lv_todate) = ir_todate[ 1 ]-low.
-*
-*    " Buoc 1: Lay ALL data, GROUP BY nhu cu (bao gom ca cac dong se bi loai)
-*    SELECT FROM @it_keys AS a
-*    LEFT JOIN I_AssetHistorySheetCube(
-*          p_assetaccountingkeyfigureset = 'AHS',
-*          p_fiscalyear                  = @iv_fiscalyear,
-*          P_FiscalPeriod                = @iv_periods,
-*          p_keydate                     = @iv_keydate
-*      ) AS b
-*        ON b~CompanyCode            = a~CompanyCode
-*        AND b~AssetDepreciationArea = a~DepreciationAreas
-*        AND b~MasterFixedAsset      = a~AssetNumber
-*        AND b~FixedAsset            = a~AssetSubNumber
-*        AND b~FiscalYear            = a~FiscalYear
-*        AND b~Ledger                = '0L'
-*        AND b~CurrencyRole          = '10'
-*    FIELDS
-*        a~CompanyCode,
-*        a~DepreciationAreas,
-*        a~AssetNumber,
-*        a~AssetSubNumber,
-*        a~FiscalYear,
-*        SUM( CASE
-*            WHEN b~AssetAccountingSortedKeyFigure = '000001-0000700110'
-*            THEN b~AmountInDisplayCurrency ELSE 0 END )
-*            AS NguyenGiaDauKyA,
-*        SUM( CASE
-*            WHEN b~AssetAccountingSortedKeyFigure = '000013-0000790200'
-*            THEN b~AmountInDisplayCurrency ELSE 0 END )
-*            AS KhauHaoDauKyA
-*    GROUP BY
-*        a~CompanyCode,
-*        a~DepreciationAreas,
-*        a~AssetNumber,
-*        a~AssetSubNumber,
-*        a~FiscalYear
-*    INTO TABLE @et_giadaukya.
-*
-*    " Buoc 2: Lay danh sach chung tu bi REVERSE dung ky (theo logic da thong nhat)
-*    TYPES: BEGIN OF ty_reversed,
-*             CompanyCode           TYPE I_GLAccountLineItemSemTag-CompanyCode,
-*             AssetDepreciationArea TYPE I_GLAccountLineItemSemTag-AssetDepreciationArea,
-*             MasterFixedAsset      TYPE I_GLAccountLineItemSemTag-MasterFixedAsset,
-*             FixedAsset            TYPE I_GLAccountLineItemSemTag-FixedAsset,
-*             AccountingDocument    TYPE I_GLAccountLineItemSemTag-AccountingDocument,
-*           END OF ty_reversed.
-*    DATA lt_reversed TYPE STANDARD TABLE OF ty_reversed WITH EMPTY KEY.
-*
-*    IF it_keys IS NOT INITIAL.
-*      SELECT DISTINCT
-*          c1~CompanyCode,
-*          c1~AssetDepreciationArea,
-*          c1~MasterFixedAsset,
-*          c1~FixedAsset,
-*          c1~AccountingDocument
-*      FROM @it_keys AS k
-*      INNER JOIN I_GLAccountLineItemSemTag AS c1
-*          ON c1~Ledger                = '0L'
-*         AND c1~CompanyCode           = k~CompanyCode
-*         AND c1~AssetDepreciationArea = k~DepreciationAreas
-*         AND c1~MasterFixedAsset      = k~AssetNumber
-*         AND c1~FixedAsset            = k~AssetSubNumber
-*      INNER JOIN I_JournalEntry AS jev
-*          ON jev~CompanyCode = c1~CompanyCode
-*         AND jev~FiscalYear  = c1~FiscalYear
-*         AND substring( jev~OriginalReferenceDocument, 1, 10 ) = c1~ReversalReferenceDocument
-*      INNER JOIN I_GLAccountLineItemSemTag AS c2
-*          ON c2~Ledger                = c1~Ledger
-*         AND c2~CompanyCode           = c1~CompanyCode
-*         AND c2~FiscalYear            = c1~FiscalYear
-*         AND c2~AssetDepreciationArea = c1~AssetDepreciationArea
-*         AND c2~MasterFixedAsset      = c1~MasterFixedAsset
-*         AND c2~FixedAsset            = c1~FixedAsset
-*         AND c2~AccountingDocument    = jev~AccountingDocument
-*      WHERE c1~ReversalReferenceDocument IS NOT INITIAL
-*        AND ( c1~IsReversal  IS NOT INITIAL
-*           OR c1~IsReversed IS NOT INITIAL )
-*        AND c2~PostingDate               >= @lv_fromdate
-*        AND c2~PostingDate               <  @lv_todate
-*      INTO TABLE @lt_reversed.
-*    ENDIF.
-*
-*    CHECK lt_reversed IS NOT INITIAL.
-*
-*    " Buoc 3: Tinh tong tien CUA RIENG cac chung tu bi reverse, cung granularity asset
-*    " (dung @lt_reversed nhu 1 itab de JOIN, chi 1 itab + 1 CDS view - hop le)
-*    TYPES: BEGIN OF ty_reversed_amt,
-*             CompanyCode       TYPE I_AssetHistorySheetCube-CompanyCode,
-*             DepreciationAreas TYPE I_AssetHistorySheetCube-AssetDepreciationArea,
-*             AssetNumber       TYPE I_AssetHistorySheetCube-MasterFixedAsset,
-*             AssetSubNumber    TYPE I_AssetHistorySheetCube-FixedAsset,
-*             FiscalYear        TYPE I_AssetHistorySheetCube-FiscalYear,
-*             NguyenGiaDauKyA   TYPE p LENGTH 15 DECIMALS 2,
-*             KhauHaoDauKyA     TYPE p LENGTH 15 DECIMALS 2,
-*           END OF ty_reversed_amt.
-*    DATA lt_reversed_amt TYPE STANDARD TABLE OF ty_reversed_amt WITH EMPTY KEY.
-*
-*    SELECT FROM @lt_reversed AS r
-*    INNER JOIN I_AssetHistorySheetCube(
-*          p_assetaccountingkeyfigureset = 'AHS',
-*          p_fiscalyear                  = @iv_fiscalyear,
-*          P_FiscalPeriod                = @iv_periods,
-*          p_keydate                     = @iv_keydate
-*      ) AS b
-*        ON b~CompanyCode            = r~CompanyCode
-*        AND b~AssetDepreciationArea = r~AssetDepreciationArea
-*        AND b~MasterFixedAsset      = r~MasterFixedAsset
-*        AND b~FixedAsset            = r~FixedAsset
-*        AND b~AccountingDocument    = r~AccountingDocument
-*        AND b~Ledger                = '0L'
-*        AND b~CurrencyRole          = '10'
-*    FIELDS
-*        r~CompanyCode,
-*        r~AssetDepreciationArea AS DepreciationAreas,
-*        r~MasterFixedAsset      AS AssetNumber,
-*        r~FixedAsset            AS AssetSubNumber,
-*        b~FiscalYear,
-*        SUM( CASE
-*            WHEN b~AssetAccountingSortedKeyFigure = '000001-0000700110'
-*            THEN b~AmountInDisplayCurrency ELSE 0 END )
-*            AS NguyenGiaDauKyA,
-*        SUM( CASE
-*            WHEN b~AssetAccountingSortedKeyFigure = '000013-0000790200'
-*            THEN b~AmountInDisplayCurrency ELSE 0 END )
-*            AS KhauHaoDauKyA
-*    GROUP BY
-*        r~CompanyCode,
-*        r~AssetDepreciationArea,
-*        r~MasterFixedAsset,
-*        r~FixedAsset,
-*        b~FiscalYear
-*    INTO TABLE @lt_reversed_amt.
-*
-*    " Buoc 4: LOOP qua et_giadaukya, TRU DI phan tien cua chung tu bi reverse
-*    LOOP AT et_giadaukya ASSIGNING FIELD-SYMBOL(<fs_result>).
-*      READ TABLE lt_reversed_amt INTO DATA(ls_reversed_amt)
-*          WITH KEY CompanyCode       = <fs_result>-CompanyCode
-*                    DepreciationAreas = <fs_result>-DepreciationAreas
-*                    AssetNumber       = <fs_result>-AssetNumber
-*                    AssetSubNumber    = <fs_result>-AssetSubNumber
-*                    FiscalYear        = <fs_result>-FiscalYear.
-*      IF sy-subrc = 0.
-*        <fs_result>-NguyenGiaDauKyA = <fs_result>-NguyenGiaDauKyA - ls_reversed_amt-NguyenGiaDauKyA.
-*        <fs_result>-KhauHaoDauKyA   = <fs_result>-KhauHaoDauKyA   - ls_reversed_amt-KhauHaoDauKyA.
-*      ENDIF.
-*    ENDLOOP.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
-
 
 
   METHOD get_giadaukyb.
     CHECK it_keys_gia IS NOT INITIAL.
 
-    "Bước 0: filter params cho et_giadaukyb
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Bước 1: filter params cho et_giadaukyb
     get_params_giadaukyb( EXPORTING ir_fromdate      = ir_fromdate
                           IMPORTING er_b_postingdate = DATA(lr_b_postingdate) ).
 
-    " Buoc 1: Lay ALL data, GROUP BY nhu cu (bao gom ca cac dong se bi loai)
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Buoc 2: Lay ALL data, GROUP BY nhu cu (bao gom ca cac dong se bi loai)
     get_temp_giadaukyb( EXPORTING it_keys_gia       = it_keys_gia
                                   iv_fiscalyear     = iv_fiscalyear
                                   iv_periods        = iv_periods
@@ -1266,185 +984,55 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                                   ir_b_postingdate  = lr_b_postingdate
                         IMPORTING et_temp_giadaukyb = DATA(lt_temp_giadaukyb) ).
 
-    "Bước 2: Từ accounting document --> lấy được reversal referencedocument ở bảng I_GLAccountLineItemSemTag
-    "Nếu là chứng từ hủy: type = 'WA' và IsReversal = 'X' --> logic như cũ
-    "Nếu type <> 'WA' -->logic như cũ
-    SELECT DISTINCT
-        a~AccountingDocument,
-        a~LedgerGLLineItem,
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Bước 3: chia case
+    "case 1: type <> 'WA'
+    "case 2: type = 'WA' và IsReversal = 'X'
+    "--> cho vào cùng 1 case
+    case_fi_rev_doc_dk(
+      EXPORTING
+        it_keys_gia       = it_keys_gia
+        ir_companycode    = ir_companycode
+        ir_b_postingdate  = lr_b_postingdate
+      CHANGING
+        ct_temp_giadaukyb = lt_temp_giadaukyb
+        ct_giadaukyb      = et_giadaukyb
+    ).
 
-        a~ReversalReferenceDocument,
-        a~FiscalYear,
-        a~PostingDate
-    FROM I_GLAccountLineItemSemTag AS a
-    INNER JOIN @it_keys_gia AS b
-        ON  a~AccountingDocument = b~accountingdocument
-        AND a~LedgerGLLineItem = b~ledgergllineitem
-
-        AND a~FiscalYear         = b~fiscalyear
-        AND a~CompanyCode        = b~companycode
-    WHERE
-        a~Ledger              = '0L'
-        AND a~SemanticTag     = 'ASSET'
-        AND a~GLAccountHierarchy = 'ZBS'
-
-        "case 1.1: type <> 'WA'
-        AND ( a~AccountingDocumentType <> 'WA'
-              AND ( a~IsReversal IS NOT INITIAL OR a~IsReversed IS NOT INITIAL )
-        "case 1.2: type = 'WA' và IsReversal = 'X'
-            OR ( a~AccountingDocumentType = 'WA' AND a~IsReversal = 'X' ) )
-    INTO TABLE @DATA(lt_reversal_doc).
-
-    "Bước 3: sau khi lấy được lt_reversal_doc --> lấy ngược lại original reversal doc ở I_Journalentry
-    "Nếu I_Journalentry có ngày posting date nằm trong khoảng parameter thì loại khỏi et_tanggiamgia
-    IF lt_reversal_doc IS NOT INITIAL.
-      get_origin_rev_giadaukyb( EXPORTING it_reversal_doc   = lt_reversal_doc
-                                          ir_companycode    = ir_companycode
-                                          ir_b_postingdate  = lr_b_postingdate
-                                IMPORTING et_origin_rev_doc = DATA(lt_origin_rev_doc) ).
-
-      "Bước 4: Delete data của et_tanggiammgia
-      LOOP AT lt_origin_rev_doc INTO DATA(ls_origin_rev_doc).
-        DELETE lt_temp_giadaukyb WHERE companycode = ls_origin_rev_doc-CompanyCode
-                                    AND fiscalyear = ls_origin_rev_doc-FiscalYear
-                                    AND accountingdocument = ls_origin_rev_doc-AccountingDocument.
-      ENDLOOP.
-      IF lt_temp_giadaukyb IS NOT INITIAL.
-        get_giadaukyb_final( EXPORTING it_temp_giadaukyb = lt_temp_giadaukyb
-                             IMPORTING et_giadaukyb      = et_giadaukyb ).
-      ENDIF.
-    ENDIF.
-
-
-
-
-
-    "Case 1.3: Nếu type = WA --> lấy data ở bảng I_MaterialDocumentItem_2
+    "Case 3: Nếu type = WA --> lấy data ở bảng I_MaterialDocumentItem_2
     "Nếu là chứng từ bị hủy: IsReversed = 'X' --> làm như dưới
-    SELECT DISTINCT
-        b~AccountingDocument AS doc_init,
-        b~LedgerGLLineItem AS docitem_init,
+    case_wa_rev_doc_dk(
+      EXPORTING
+        it_keys_gia       = it_keys_gia
+        ir_companycode    = ir_companycode
+        ir_b_postingdate  = lr_b_postingdate
+      CHANGING
+        ct_temp_giadaukyb = lt_temp_giadaukyb
+        ct_giadaukyb      = et_giadaukyb
+    ).
 
-        a~referencedocument AS AccountingDocument,
-        a~referencedocumentitem AS LedgerGLLineItem,
-
-        a~FiscalYear,
-        a~PostingDate
-    FROM I_GLAccountLineItemSemTag AS a
-    INNER JOIN @it_keys_gia AS b
-        ON  a~AccountingDocument = b~accountingdocument
-        AND a~LedgerGLLineItem = b~ledgergllineitem
-
-        AND a~FiscalYear         = b~fiscalyear
-        AND a~CompanyCode        = b~companycode
-    WHERE
-        a~Ledger              = '0L'
-        AND a~SemanticTag     = 'ASSET'
-        AND a~GLAccountHierarchy = 'ZBS'
-        AND ( a~IsReversal IS INITIAL AND a~IsReversed = 'X' )
-
-        AND a~AccountingDocumentType = 'WA'
-    INTO TABLE @DATA(lt_reversal_doc_wa).
-
-    IF lt_reversal_doc_wa IS NOT INITIAL.
-      SELECT FROM I_MaterialDocumentItem_2 AS a
-      INNER JOIN @lt_reversal_doc_wa AS b
-          ON b~AccountingDocument = a~ReversedMaterialDocument
-          AND substring( b~ledgergllineitem, 3, 4 ) = a~ReversedMaterialDocumentItem
-          AND b~FiscalYear = a~MaterialDocumentYear
-      FIELDS
-          b~doc_init,
-          b~docitem_init,
-          b~FiscalYear,
-
-          a~MaterialDocument,
-          a~MaterialDocumentItem,
-          a~PostingDate
-      WHERE
-          a~PostingDate IN @lr_b_postingdate
-      INTO TABLE @DATA(lt_origin_rev_doc_wa).
-
-      "Từ matdoc --> lấy ngược lại để tìm được chứng từ gốc của chứng từ hủy
-      SELECT FROM I_GLAccountLineItemSemTag AS a
-      INNER JOIN @lt_origin_rev_doc_wa AS b
-          ON b~FiscalYear = a~FiscalYear
-          AND b~MaterialDocument = a~ReferenceDocument
-          AND b~MaterialDocumentItem = substring( a~ReferenceDocumentItem, 3, 4 )
-      FIELDS
-          a~CompanyCode,
-          a~FiscalYear,
-          a~AccountingDocument,
-          a~LedgerGLLineItem,
-          a~PostingDate
-      WHERE
-          a~ledger = '0L'
-          AND a~SemanticTag = 'ASSET'
-          AND a~GLAccountHierarchy = 'ZBS'
-
-          AND a~CompanyCode IN @ir_companycode
-          AND a~PostingDate IN @lr_b_postingdate
-      GROUP BY
-          a~CompanyCode,
-          a~FiscalYear,
-          a~AccountingDocument,
-          a~LedgerGLLineItem,
-          a~PostingDate
-      INTO TABLE @DATA(lt_origin_rev_doc_wa_2).
-
-      IF lt_origin_rev_doc_wa IS NOT INITIAL.
-        LOOP AT lt_origin_rev_doc_wa INTO DATA(ls_origin_rev_doc_wa).
-          DELETE lt_temp_giadaukyb WHERE companycode = ir_companycode[ 1 ]-low
-                                     AND fiscalyear = ls_origin_rev_doc_wa-FiscalYear
-                                     AND accountingdocument = ls_origin_rev_doc_wa-doc_init
-                                     AND ledgergllineitem = ls_origin_rev_doc_wa-docitem_init.
-        ENDLOOP.
-        IF lt_temp_giadaukyb IS NOT INITIAL.
-          get_giadaukyb_final( EXPORTING it_temp_giadaukyb = lt_temp_giadaukyb
-                               IMPORTING et_giadaukyb      = et_giadaukyb ).
-        ENDIF.
-      ENDIF.
-
-      IF lt_origin_rev_doc_wa_2 IS NOT INITIAL.
-        LOOP AT lt_origin_rev_doc_wa_2 INTO DATA(ls_origin_rev_doc_wa_2).
-          DELETE lt_temp_giadaukyb WHERE companycode = ir_companycode[ 1 ]-low
-                                     AND fiscalyear = ls_origin_rev_doc_wa_2-FiscalYear
-                                     AND accountingdocument = ls_origin_rev_doc_wa_2-AccountingDocument
-                                     AND LedgerGLLineItem = ls_origin_rev_doc_wa_2-LedgerGLLineItem.
-        ENDLOOP.
-      ENDIF.
-      IF lt_temp_giadaukyb IS NOT INITIAL.
-        get_giadaukyb_final( EXPORTING it_temp_giadaukyb = lt_temp_giadaukyb
-                             IMPORTING et_giadaukyb      = et_giadaukyb ).
-      ENDIF.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Bước 4: Nếu cả 3 case không thỏa mãn --> không có chứng từ reverse --> lấy itab bình thường
+    IF lt_temp_giadaukyb IS NOT INITIAL AND et_giadaukyb IS INITIAL.
+      get_giadaukyb_final( EXPORTING it_temp_giadaukyb = lt_temp_giadaukyb
+                           CHANGING  ct_giadaukyb      = et_giadaukyb ).
     ENDIF.
-
-*    "Bước 2: Từ accounting document --> lấy được reversal referencedocument ở bảng I_GLAccountLineItemSemTag
-*    CHECK lt_temp_giadaukyb IS NOT INITIAL.
-*    get_reversal_doc( EXPORTING it_keys_gia     = it_keys_gia
-*                      IMPORTING et_reversal_doc = DATA(lt_reversal_doc) ).
-*    IF lt_reversal_doc IS INITIAL.
-*      get_giadaukyb_final( EXPORTING it_temp_giadaukyb = lt_temp_giadaukyb
-*                           IMPORTING et_giadaukyb      = et_giadaukyb ).
-*    ENDIF.
-*
-*    "Bước 3: sau khi lấy được lt_reversal_doc --> lấy ngược lại original reversal doc ở I_Journalentry
-*    "Nếu I_Journalentry có ngày posting date nằm trong khoảng parameter thì loại khỏi et_tanggiamgia
-*    CHECK lt_reversal_doc IS NOT INITIAL.
-*    get_origin_rev_giadaukyb( EXPORTING it_reversal_doc   = lt_reversal_doc
-*                                        ir_companycode    = ir_companycode
-*                                        ir_b_postingdate  = lr_b_postingdate
-*                              IMPORTING et_origin_rev_doc = DATA(lt_origin_rev_doc) ).
-*
-*    "Bước 4: Delete data của et_tanggiammgia
-*    LOOP AT lt_origin_rev_doc INTO DATA(ls_origin_rev_doc).
-*      DELETE lt_temp_giadaukyb WHERE companycode = ls_origin_rev_doc-CompanyCode
-*                                  AND fiscalyear = ls_origin_rev_doc-FiscalYear
-*                                  AND accountingdocument = ls_origin_rev_doc-AccountingDocument.
-*    ENDLOOP.
-*    CHECK lt_temp_giadaukyb IS NOT INITIAL.
-*    get_giadaukyb_final( EXPORTING it_temp_giadaukyb = lt_temp_giadaukyb
-*                         IMPORTING et_giadaukyb      = et_giadaukyb ).
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1489,16 +1077,30 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
   METHOD get_tanggiamgia.
     CHECK it_keys_gia IS NOT INITIAL.
 
-    "Bước 0: filter params cho et_tanggiamgia
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Bước 1: filter params cho et_tanggiamgia
     get_params_tanggiamgia( EXPORTING ir_fromdate = ir_fromdate
                                       ir_todate   = ir_todate
                             IMPORTING ev_fromdate = DATA(lv_fromdate)
                                       ev_todate   = DATA(lv_todate) ).
 
-    " Buoc 1: Lay ALL data, GROUP BY nhu cu (bao gom ca cac dong se bi loai)
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " Buoc 2: Lay ALL data, GROUP BY nhu cu (bao gom ca cac dong se bi loai)
     get_temp_tanggiamgia( EXPORTING it_keys_gia         = it_keys_gia
                                     iv_fiscalyear       = iv_fiscalyear
                                     iv_periods          = iv_periods
@@ -1507,155 +1109,60 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                                     iv_todate           = lv_todate
                           IMPORTING et_temp_tanggiamgia = DATA(lt_temp_tanggiamgia) ).
 
-    "Bước 2: Từ accounting document --> lấy được reversal referencedocument ở bảng I_GLAccountLineItemSemTag
-    "Nếu là chứng từ hủy: type = 'WA' và IsReversal = 'X' --> logic như cũ
-    "Nếu type <> 'WA' -->logic như cũ
-    SELECT DISTINCT
-        a~AccountingDocument,
-        a~LedgerGLLineItem,
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Bước 3: chia case
+    "case 1: type <> 'WA'
+    "case 2: type = 'WA' và IsReversal = 'X'
+    "--> cho vào cùng 1 case
+    case_fi_rev_doc_tg(
+      EXPORTING
+        it_keys_gia         = it_keys_gia
+        ir_companycode      = ir_companycode
+        iv_fromdate         = lv_fromdate
+        iv_todate           = lv_todate
+      CHANGING
+        ct_temp_tanggiamgia = lt_temp_tanggiamgia
+        ct_tanggiamgia      = et_tanggiamgia
+    ).
 
-        a~ReversalReferenceDocument,
-        a~FiscalYear,
-        a~PostingDate
-    FROM I_GLAccountLineItemSemTag AS a
-    INNER JOIN @it_keys_gia AS b
-        ON  a~AccountingDocument = b~accountingdocument
-        AND a~LedgerGLLineItem = b~ledgergllineitem
+    "Case 3: type = 'WA' và IsReversed = 'X'
+    case_wa_rev_doc_tg(
+      EXPORTING
+        it_keys_gia         = it_keys_gia
+        ir_companycode      = ir_companycode
+        iv_fromdate         = lv_fromdate
+        iv_todate           = lv_todate
+      CHANGING
+        ct_temp_tanggiamgia = lt_temp_tanggiamgia
+        ct_tanggiamgia      = et_tanggiamgia
+    ).
 
-        AND a~FiscalYear         = b~fiscalyear
-        AND a~CompanyCode        = b~companycode
-    WHERE
-        a~Ledger              = '0L'
-        AND a~SemanticTag     = 'ASSET'
-        AND a~GLAccountHierarchy = 'ZBS'
-
-        "case 1.1: type <> 'WA'
-        AND ( a~AccountingDocumentType <> 'WA'
-              AND ( a~IsReversal IS NOT INITIAL OR a~IsReversed IS NOT INITIAL )
-        "case 1.2: type = 'WA' và IsReversal = 'X'
-            OR ( a~AccountingDocumentType = 'WA' AND a~IsReversal = 'X' ) )
-    INTO TABLE @DATA(lt_reversal_doc).
-
-    "Bước 3: sau khi lấy được lt_reversal_doc --> lấy ngược lại original reversal doc ở I_Journalentry
-    "Nếu I_Journalentry có ngày posting date nằm trong khoảng parameter thì loại khỏi et_tanggiamgia
-    IF lt_reversal_doc IS NOT INITIAL.
-      get_origin_rev_tanggiamgia( EXPORTING it_reversal_doc   = lt_reversal_doc
-                                            ir_companycode    = ir_companycode
-                                            iv_fromdate       = lv_fromdate
-                                            iv_todate         = lv_todate
-                                  IMPORTING et_origin_rev_doc = DATA(lt_origin_rev_doc) ).
-
-      "Bước 4: Delete data của et_tanggiammgia
-      LOOP AT lt_origin_rev_doc INTO DATA(ls_origin_rev_doc).
-        DELETE lt_temp_tanggiamgia WHERE companycode = ls_origin_rev_doc-CompanyCode
-                                   AND fiscalyear = ls_origin_rev_doc-FiscalYear
-                                   AND accountingdocument = ls_origin_rev_doc-AccountingDocument.
-      ENDLOOP.
-      IF lt_temp_tanggiamgia IS NOT INITIAL.
-        get_tanggiamgia_final( EXPORTING it_temp_tanggiamgia = lt_temp_tanggiamgia
-                               IMPORTING et_tanggiamgia      = et_tanggiamgia ).
-      ENDIF.
-    ENDIF.
-
-    "Case 1.3: Nếu type = WA --> lấy data ở bảng I_MaterialDocumentItem_2
-    "Nếu là chứng từ bị hủy: IsReversed = 'X' --> làm như dưới
-    SELECT DISTINCT
-        b~AccountingDocument AS doc_init,
-        b~LedgerGLLineItem AS docitem_init,
-
-        a~referencedocument AS AccountingDocument,
-        a~referencedocumentitem AS LedgerGLLineItem,
-
-        a~FiscalYear,
-        a~PostingDate
-    FROM I_GLAccountLineItemSemTag AS a
-    INNER JOIN @it_keys_gia AS b
-        ON  a~AccountingDocument = b~accountingdocument
-        AND a~LedgerGLLineItem = b~ledgergllineitem
-
-        AND a~FiscalYear         = b~fiscalyear
-        AND a~CompanyCode        = b~companycode
-    WHERE
-        a~Ledger              = '0L'
-        AND a~SemanticTag     = 'ASSET'
-        AND a~GLAccountHierarchy = 'ZBS'
-        AND ( a~IsReversal IS INITIAL AND a~IsReversed = 'X' )
-
-        AND a~AccountingDocumentType = 'WA'
-    INTO TABLE @DATA(lt_reversal_doc_wa).
-
-    IF lt_reversal_doc_wa IS NOT INITIAL.
-      SELECT FROM I_MaterialDocumentItem_2 AS a
-      INNER JOIN @lt_reversal_doc_wa AS b
-          ON b~AccountingDocument = a~ReversedMaterialDocument
-          AND substring( b~ledgergllineitem, 3, 4 ) = a~ReversedMaterialDocumentItem
-          AND b~FiscalYear = a~MaterialDocumentYear
-      FIELDS
-          b~doc_init,
-          b~docitem_init,
-          b~FiscalYear,
-
-          a~MaterialDocument,
-          a~MaterialDocumentItem,
-          a~PostingDate
-      WHERE
-          a~PostingDate >= @lv_fromdate AND a~PostingDate < @lv_todate
-      INTO TABLE @DATA(lt_origin_rev_doc_wa).
-
-      "Từ matdoc --> lấy ngược lại để tìm được chứng từ gốc của chứng từ hủy
-      SELECT FROM I_GLAccountLineItemSemTag AS a
-      INNER JOIN @lt_origin_rev_doc_wa AS b
-          ON b~FiscalYear = a~FiscalYear
-          AND b~MaterialDocument = a~ReferenceDocument
-          AND b~MaterialDocumentItem = substring( a~ReferenceDocumentItem, 3, 4 )
-      FIELDS
-          a~CompanyCode,
-          a~FiscalYear,
-          a~AccountingDocument,
-          a~LedgerGLLineItem,
-          a~PostingDate
-      WHERE
-          a~ledger = '0L'
-          AND a~SemanticTag = 'ASSET'
-          AND a~GLAccountHierarchy = 'ZBS'
-
-          AND a~CompanyCode IN @ir_companycode
-          AND ( a~PostingDate >= @lv_fromdate AND a~PostingDate < @lv_todate )
-      GROUP BY
-          a~CompanyCode,
-          a~FiscalYear,
-          a~AccountingDocument,
-          a~LedgerGLLineItem,
-          a~PostingDate
-      INTO TABLE @DATA(lt_origin_rev_doc_wa_2).
-
-      IF lt_origin_rev_doc_wa IS NOT INITIAL.
-        LOOP AT lt_origin_rev_doc_wa INTO DATA(ls_origin_rev_doc_wa).
-          DELETE lt_temp_tanggiamgia WHERE companycode = ir_companycode[ 1 ]-low
-                                     AND fiscalyear = ls_origin_rev_doc_wa-FiscalYear
-                                     AND accountingdocument = ls_origin_rev_doc_wa-doc_init
-                                     AND ledgergllineitem = ls_origin_rev_doc_wa-docitem_init.
-        ENDLOOP.
-        IF lt_temp_tanggiamgia IS NOT INITIAL.
-          get_tanggiamgia_final( EXPORTING it_temp_tanggiamgia = lt_temp_tanggiamgia
-                                 IMPORTING et_tanggiamgia      = et_tanggiamgia ).
-        ENDIF.
-      ENDIF.
-
-      IF lt_origin_rev_doc_wa_2 IS NOT INITIAL.
-        LOOP AT lt_origin_rev_doc_wa_2 INTO DATA(ls_origin_rev_doc_wa_2).
-          DELETE lt_temp_tanggiamgia WHERE companycode = ir_companycode[ 1 ]-low
-                                     AND fiscalyear = ls_origin_rev_doc_wa_2-FiscalYear
-                                     AND accountingdocument = ls_origin_rev_doc_wa_2-AccountingDocument
-                                     AND ledgergllineitem = ls_origin_rev_doc_wa_2-LedgerGLLineItem.
-        ENDLOOP.
-      ENDIF.
-      IF lt_temp_tanggiamgia IS NOT INITIAL.
-        get_tanggiamgia_final( EXPORTING it_temp_tanggiamgia = lt_temp_tanggiamgia
-                               IMPORTING et_tanggiamgia      = et_tanggiamgia ).
-      ENDIF.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Bước 4: Nếu cả 3 case không thỏa mãn --> không có chứng từ reverse --> lấy itab bình thường
+    IF lt_temp_tanggiamgia IS NOT INITIAL AND et_tanggiamgia IS INITIAL.
+      get_tanggiamgia_final( EXPORTING it_temp_tanggiamgia = lt_temp_tanggiamgia
+                             CHANGING  ct_tanggiamgia      = et_tanggiamgia ).
     ENDIF.
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1682,6 +1189,23 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                                   ir_periods     = cr_periods
                          CHANGING cr_postingdate = cr_postingdate ).
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1732,6 +1256,24 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   METHOD build_params.
     "1.Get Params
     get_params( EXPORTING it_filters           = it_filters
@@ -1757,6 +1299,17 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
                            CHANGING cr_periods     = er_periods
                                     cr_postingdate = er_postingdate ).
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1841,6 +1394,21 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   METHOD get_result_key.
     "Key fields
     cs_result-CompanyCode       = is_key-CompanyCode.
@@ -1860,6 +1428,21 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
               lv_assetsubnumber.
     cs_result-MaTaiSan = |{ lv_assetnumber }-{ lv_assetsubnumber }|.
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1920,6 +1503,21 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   METHOD get_result_ztable.
     cs_result-TaiKhoanNguyenGia = VALUE #( it_config[
         AccountDetermination = is_base-loaitaisan
@@ -1933,6 +1531,18 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         AccountDetermination = is_base-loaitaisan
         AccountAssignmentFor = 'KTNAFG' ]-GlAccount OPTIONAL ).
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1962,6 +1572,24 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
     "Giá cuối kỳ
     get_result_giacuoiky( CHANGING cs_result = cs_result ).
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2011,6 +1639,14 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
   METHOD get_result_tanggiamgia.
     READ TABLE it_tanggiamgia INTO DATA(ls_tanggiamnguyengia) WITH KEY CompanyCode       = is_key-CompanyCode
                                                                        DepreciationAreas = is_key-depreciationareas
@@ -2024,6 +1660,17 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
       cs_result-GiamKhauHao   = abs( ls_tanggiamnguyengia-GiamKhauHao ).
     ENDIF.
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2060,6 +1707,20 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   METHOD get_config.
     DATA(lt_bases_distinct) = it_bases.
     SORT lt_bases_distinct BY loaitaisan.
@@ -2077,6 +1738,15 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         AND AccountAssignmentFor IN ( 'KTNAFG', 'KTNAFB', 'KTANSW' )
     INTO TABLE @et_config.
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2147,6 +1817,23 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   METHOD modify_periods.
     IF cr_periods IS INITIAL.
       APPEND INITIAL LINE TO cr_periods ASSIGNING FIELD-SYMBOL(<lfs_periods>).
@@ -2156,6 +1843,22 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
       <lfs_periods>-high   = '012'.
     ENDIF.
   ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2203,41 +1906,12 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   METHOD get_params_giadaukyb.
     APPEND INITIAL LINE TO er_b_postingdate ASSIGNING FIELD-SYMBOL(<lfs_b_pdate>).
     <lfs_b_pdate>-sign   = 'I'.
     <lfs_b_pdate>-option = 'LT'.
     <lfs_b_pdate>-low    = ir_fromdate[ 1 ]-low.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
 
 
   METHOD get_temp_giadaukyb.
@@ -2312,20 +1986,24 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+
+
+
+
+
+
   METHOD get_reversal_doc.
     SELECT DISTINCT
-        CASE WHEN a~AccountingDocumentType = 'WA'
-             THEN a~ReferenceDocument
-             ELSE a~AccountingDocument
-        END AS AccountingDocument,
-        CASE WHEN a~AccountingDocumentType = 'WA'
-             THEN a~ReferenceDocumentItem
-             ELSE a~LedgerGLLineItem
-        END AS AccountingDocumentItem,
+        a~AccountingDocument,
+        a~LedgerGLLineItem,
 
         a~ReversalReferenceDocument,
         a~FiscalYear,
-        a~PostingDate
+        a~PostingDate,
+        a~accountingdocumenttype
     FROM I_GLAccountLineItemSemTag AS a
     INNER JOIN @it_keys_gia AS b
         ON  a~AccountingDocument = b~accountingdocument
@@ -2337,13 +2015,14 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         a~Ledger              = '0L'
         AND a~SemanticTag     = 'ASSET'
         AND a~GLAccountHierarchy = 'ZBS'
-        AND ( a~IsReversal IS NOT INITIAL OR a~IsReversed IS NOT INITIAL )
+
+        "case 1.1: type <> 'WA'
+        AND ( a~AccountingDocumentType <> 'WA'
+              AND ( a~IsReversal IS NOT INITIAL OR a~IsReversed IS NOT INITIAL )
+        "case 1.2: type = 'WA' và IsReversal = 'X'
+            OR ( a~AccountingDocumentType = 'WA' AND a~IsReversal = 'X' ) )
     INTO TABLE @et_reversal_doc.
   ENDMETHOD.
-
-
-
-
 
 
 
@@ -2383,17 +2062,13 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         a~AssetNumber,
         a~AssetSubNumber,
         a~FiscalYear
-    INTO TABLE @et_giadaukyb.
+    INTO TABLE @DATA(lt_giadaukyb).
+
+    CHECK lt_giadaukyb IS NOT INITIAL.
+    LOOP AT lt_giadaukyb INTO DATA(ls_giadaukyb).
+      COLLECT ls_giadaukyb INTO ct_giadaukyb.
+    ENDLOOP.
   ENDMETHOD.
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2416,8 +2091,9 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   METHOD get_origin_rev_giadaukyb.
     SELECT FROM I_JournalEntry AS a
     INNER JOIN @it_reversal_doc AS b
-        ON b~FiscalYear = a~FiscalYear
+        ON b~FiscalYear                 = a~FiscalYear
         AND b~ReversalReferenceDocument = substring( a~OriginalReferenceDocument, 1, 10 )
+        AND b~accountingdocumenttype    = a~AccountingDocumentType
     FIELDS
         a~CompanyCode,
         a~FiscalYear,
@@ -2452,15 +2128,14 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
-
-
-
-
-
   METHOD get_params_tanggiamgia.
     ev_fromdate = ir_fromdate[ 1 ]-low.
     ev_todate = ir_todate[ 1 ]-low.
   ENDMETHOD.
+
+
+
+
 
 
 
@@ -2561,23 +2236,6 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   METHOD get_tanggiamgia_final.
     SELECT FROM @it_temp_tanggiamgia AS a
     FIELDS
@@ -2597,8 +2255,19 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         a~AssetNumber,
         a~AssetSubNumber,
         a~FiscalYear
-    INTO TABLE @et_tanggiamgia.
+    INTO TABLE @DATA(lt_tanggiamgia).
+
+    CHECK lt_tanggiamgia IS NOT INITIAL.
+
+    LOOP AT lt_tanggiamgia INTO DATA(ls_tanggiamgia).
+      COLLECT ls_tanggiamgia INTO ct_tanggiamgia.
+    ENDLOOP.
   ENDMETHOD.
+
+
+
+
+
 
 
 
@@ -2616,8 +2285,9 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
   METHOD get_origin_rev_tanggiamgia.
     SELECT FROM I_JournalEntry AS a
     INNER JOIN @it_reversal_doc AS b
-        ON b~FiscalYear = a~FiscalYear
+        ON b~FiscalYear                 = a~FiscalYear
         AND b~ReversalReferenceDocument = substring( a~OriginalReferenceDocument, 1, 10 )
+        AND b~accountingdocumenttype    = a~AccountingDocumentType
     FIELDS
         a~CompanyCode,
         a~FiscalYear,
@@ -2656,5 +2326,759 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
 
 
 
+
+
+
+  METHOD get_tanggiamgia_base_rev_doc.
+    CHECK it_reversal_doc IS NOT INITIAL.
+    get_origin_rev_tanggiamgia( EXPORTING it_reversal_doc   = it_reversal_doc
+                                          ir_companycode    = ir_companycode
+                                          iv_fromdate       = iv_fromdate
+                                          iv_todate         = iv_todate
+                                IMPORTING et_origin_rev_doc = DATA(lt_origin_rev_doc) ).
+
+    "Bước 4: Delete data của et_tanggiammgia
+    LOOP AT lt_origin_rev_doc INTO DATA(ls_origin_rev_doc).
+      DELETE ct_temp_tanggiamgia WHERE companycode = ls_origin_rev_doc-CompanyCode
+                                 AND fiscalyear = ls_origin_rev_doc-FiscalYear
+                                 AND accountingdocument = ls_origin_rev_doc-AccountingDocument.
+    ENDLOOP.
+    IF ct_temp_tanggiamgia IS NOT INITIAL.
+      get_tanggiamgia_final( EXPORTING it_temp_tanggiamgia = ct_temp_tanggiamgia
+                             CHANGING  ct_tanggiamgia      = ct_tanggiamgia ).
+    ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_reversal_doc_wa.
+    SELECT DISTINCT
+        b~AccountingDocument AS doc_init,
+        b~LedgerGLLineItem AS docitem_init,
+
+        a~referencedocument AS AccountingDocument,
+        a~referencedocumentitem AS LedgerGLLineItem,
+
+        a~FiscalYear,
+        a~PostingDate
+    FROM I_GLAccountLineItemSemTag AS a
+    INNER JOIN @it_keys_gia AS b
+        ON  a~AccountingDocument = b~accountingdocument
+        AND a~LedgerGLLineItem = b~ledgergllineitem
+
+        AND a~FiscalYear         = b~fiscalyear
+        AND a~CompanyCode        = b~companycode
+    WHERE
+        a~Ledger              = '0L'
+        AND a~SemanticTag     = 'ASSET'
+        AND a~GLAccountHierarchy = 'ZBS'
+        AND ( a~IsReversal IS INITIAL AND a~IsReversed = 'X' )
+
+        AND a~AccountingDocumentType = 'WA'
+    INTO TABLE @et_reversal_doc_wa.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_ori_rev_doc_wa_tanggiamgia.
+    SELECT FROM I_MaterialDocumentItem_2 AS a
+    INNER JOIN @it_reversal_doc_wa AS b
+        ON b~AccountingDocument = a~ReversedMaterialDocument
+        AND substring( b~ledgergllineitem, 3, 4 ) = a~ReversedMaterialDocumentItem
+        AND b~FiscalYear = a~MaterialDocumentYear
+    FIELDS
+        b~doc_init,
+        b~docitem_init,
+        b~FiscalYear,
+
+        a~MaterialDocument,
+        a~MaterialDocumentItem,
+        a~PostingDate
+    WHERE
+        a~PostingDate >= @iv_fromdate AND a~PostingDate < @iv_todate
+    INTO TABLE @et_origin_rev_doc_wa.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_tg_base_ori_rev_doc.
+    LOOP AT it_origin_rev_doc_wa INTO DATA(ls_origin_rev_doc_wa).
+      DELETE ct_temp_tanggiamgia WHERE companycode = ir_companycode[ 1 ]-low
+                                 AND fiscalyear = ls_origin_rev_doc_wa-FiscalYear
+                                 AND accountingdocument = ls_origin_rev_doc_wa-doc_init
+                                 AND ledgergllineitem = ls_origin_rev_doc_wa-docitem_init.
+    ENDLOOP.
+    IF ct_temp_tanggiamgia IS NOT INITIAL.
+      get_tanggiamgia_final( EXPORTING it_temp_tanggiamgia = ct_temp_tanggiamgia
+                             CHANGING  ct_tanggiamgia      = ct_tanggiamgia ).
+    ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_rev_matdoc_wa_tanggiamgia.
+    SELECT FROM I_GLAccountLineItemSemTag AS a
+    INNER JOIN @it_origin_rev_doc_wa AS b
+        ON b~FiscalYear = a~FiscalYear
+        AND b~MaterialDocument = a~ReferenceDocument
+        AND b~MaterialDocumentItem = substring( a~ReferenceDocumentItem, 3, 4 )
+    FIELDS
+    a~CompanyCode,
+    a~FiscalYear,
+    a~AccountingDocument,
+    a~LedgerGLLineItem,
+    a~PostingDate
+    WHERE
+    a~ledger = '0L'
+    AND a~SemanticTag = 'ASSET'
+    AND a~GLAccountHierarchy = 'ZBS'
+
+    AND a~CompanyCode IN @ir_companycode
+    AND ( a~PostingDate >= @iv_fromdate AND a~PostingDate < @iv_todate )
+    GROUP BY
+    a~CompanyCode,
+    a~FiscalYear,
+    a~AccountingDocument,
+    a~LedgerGLLineItem,
+    a~PostingDate
+INTO TABLE @et_rev_matdoc_wa.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_tg_base_rev_matdoc_wa.
+    CHECK it_rev_matdoc_wa IS NOT INITIAL.
+    LOOP AT it_rev_matdoc_wa INTO DATA(ls_rev_matdoc_wa).
+      DELETE ct_temp_tanggiamgia WHERE companycode = ir_companycode[ 1 ]-low
+                                 AND fiscalyear = ls_rev_matdoc_wa-FiscalYear
+                                 AND accountingdocument = ls_rev_matdoc_wa-AccountingDocument
+                                 AND ledgergllineitem = ls_rev_matdoc_wa-LedgerGLLineItem.
+    ENDLOOP.
+
+    IF ct_temp_tanggiamgia IS NOT INITIAL.
+      get_tanggiamgia_final( EXPORTING it_temp_tanggiamgia = ct_temp_tanggiamgia
+                             CHANGING  ct_tanggiamgia      = ct_tanggiamgia ).
+    ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD case_fi_rev_doc_tg.
+    "Bước 1: Từ accounting document --> lấy được reversal referencedocument ở bảng I_GLAccountLineItemSemTag
+    "Nếu là chứng từ hủy: type = 'WA' và IsReversal = 'X' --> logic như cũ
+    "Nếu type <> 'WA' -->logic như cũ
+    get_reversal_doc(
+      EXPORTING
+        it_keys_gia     = it_keys_gia
+      IMPORTING
+        et_reversal_doc = DATA(lt_reversal_doc)
+    ).
+
+    "Bước 2: sau khi lấy được lt_reversal_doc --> lấy ngược lại original reversal doc ở I_Journalentry
+    "Nếu I_Journalentry có ngày posting date nằm trong khoảng parameter thì loại khỏi et_tanggiamgia
+    get_tanggiamgia_base_rev_doc(
+      EXPORTING
+        it_reversal_doc     = lt_reversal_doc
+        ir_companycode      = ir_companycode
+        iv_fromdate         = iv_fromdate
+        iv_todate           = iv_todate
+      CHANGING
+        ct_temp_tanggiamgia = ct_temp_tanggiamgia
+        ct_tanggiamgia      = ct_tanggiamgia
+    ).
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD case_wa_rev_doc_tg.
+    "Bước 1: Lấy itab rev doc (theo type WA)
+    get_reversal_doc_wa(
+      EXPORTING
+        it_keys_gia        = it_keys_gia
+      IMPORTING
+        et_reversal_doc_wa = DATA(lt_reversal_doc_wa)
+    ).
+
+    CHECK lt_reversal_doc_wa IS NOT INITIAL.
+    "Bước 2: Lấy chứng từ origin rev doc từ itab rev doc ở bước trước
+    get_ori_rev_doc_wa_tanggiamgia(
+      EXPORTING
+        it_reversal_doc_wa   = lt_reversal_doc_wa
+        iv_fromdate          = iv_fromdate
+        iv_todate            = iv_todate
+      IMPORTING
+        et_origin_rev_doc_wa = DATA(lt_origin_rev_doc_wa)
+    ).
+
+    IF lt_origin_rev_doc_wa IS NOT INITIAL.
+      "Bước 3: Lấy itab tăng giảm giá từ itab vừa lấy được
+      get_tg_base_ori_rev_doc(
+        EXPORTING
+          it_origin_rev_doc_wa = lt_origin_rev_doc_wa
+          ir_companycode       = ir_companycode
+        CHANGING
+          ct_temp_tanggiamgia  = ct_temp_tanggiamgia
+          ct_tanggiamgia       = ct_tanggiamgia
+      ).
+
+      "Bước 4: Từ matdoc --> lấy ngược lại để tìm được chứng từ gốc của chứng từ hủy
+      get_rev_matdoc_wa_tanggiamgia(
+        EXPORTING
+          it_origin_rev_doc_wa = lt_origin_rev_doc_wa
+          ir_companycode       = ir_companycode
+          iv_fromdate          = iv_fromdate
+          iv_todate            = iv_todate
+        IMPORTING
+          et_rev_matdoc_wa     = DATA(lt_rev_matdoc_wa)
+      ).
+
+      "Bước 5: Lấy itab tăng giảm giá từ itab vừa lấy được
+      get_tg_base_rev_matdoc_wa(
+        EXPORTING
+          it_rev_matdoc_wa    = lt_rev_matdoc_wa
+          ir_companycode      = ir_companycode
+        CHANGING
+          ct_temp_tanggiamgia = ct_temp_tanggiamgia
+          ct_tanggiamgia      = ct_tanggiamgia
+      ).
+    ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD case_fi_rev_doc_dk.
+    "Bước 1: Từ accounting document --> lấy được reversal referencedocument ở bảng I_GLAccountLineItemSemTag
+    "Nếu là chứng từ hủy: type = 'WA' và IsReversal = 'X' --> logic như cũ
+    "Nếu type <> 'WA' -->logic như cũ
+    get_reversal_doc(
+      EXPORTING
+        it_keys_gia     = it_keys_gia
+      IMPORTING
+        et_reversal_doc = DATA(lt_reversal_doc)
+    ).
+
+    "Bước 2: sau khi lấy được lt_reversal_doc --> lấy ngược lại original reversal doc ở I_Journalentry
+    "Nếu I_Journalentry có ngày posting date nằm trong khoảng parameter thì loại khỏi et_tanggiamgia
+    get_dauky_base_rev_doc(
+      EXPORTING
+        it_reversal_doc   = lt_reversal_doc
+        ir_companycode    = ir_companycode
+        ir_b_postingdate  = ir_b_postingdate
+      CHANGING
+        ct_temp_giadaukyb = ct_temp_giadaukyb
+        ct_giadaukyb      = ct_giadaukyb
+    ).
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD case_wa_rev_doc_dk.
+    "Bước 1: Lấy itab rev doc (theo type WA)
+    get_reversal_doc_wa(
+      EXPORTING
+        it_keys_gia        = it_keys_gia
+      IMPORTING
+        et_reversal_doc_wa = DATA(lt_reversal_doc_wa)
+    ).
+
+    CHECK lt_reversal_doc_wa IS NOT INITIAL.
+    "Bước 2: Lấy chứng từ origin rev doc từ itab rev doc ở bước trước
+    get_ori_rev_doc_wa_dk(
+      EXPORTING
+        it_reversal_doc_wa   = lt_reversal_doc_wa
+        ir_b_postingdate     = ir_b_postingdate
+      IMPORTING
+        et_origin_rev_doc_wa = DATA(lt_origin_rev_doc_wa)
+    ).
+
+    IF lt_origin_rev_doc_wa IS NOT INITIAL.
+      "Bước 3: Lấy itab tăng giảm giá từ itab vừa lấy được
+      get_dk_base_ori_rev_doc(
+        EXPORTING
+          it_origin_rev_doc_wa = lt_origin_rev_doc_wa
+          ir_companycode       = ir_companycode
+        CHANGING
+          ct_temp_giadaukyb    = ct_temp_giadaukyb
+          ct_giadaukyb         = ct_giadaukyb
+      ).
+
+      "Bước 4: Từ matdoc --> lấy ngược lại để tìm được chứng từ gốc của chứng từ hủy
+      get_rev_matdoc_wa_dk(
+        EXPORTING
+          it_origin_rev_doc_wa = lt_origin_rev_doc_wa
+          ir_companycode       = ir_companycode
+          ir_b_postingdate     = ir_b_postingdate
+        IMPORTING
+          et_rev_matdoc_wa     = DATA(lt_rev_matdoc_wa)
+      ).
+
+      "Bước 5: Lấy itab tăng giảm giá từ itab vừa lấy được
+      get_dk_base_rev_matdoc_wa(
+        EXPORTING
+          it_rev_matdoc_wa  = lt_rev_matdoc_wa
+          ir_companycode    = ir_companycode
+        CHANGING
+          ct_temp_giadaukyb = ct_temp_giadaukyb
+          ct_giadaukyb      = ct_giadaukyb
+      ).
+    ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_dauky_base_rev_doc.
+    CHECK it_reversal_doc IS NOT INITIAL.
+    get_origin_rev_giadaukyb( EXPORTING it_reversal_doc   = it_reversal_doc
+                                        ir_companycode    = ir_companycode
+                                        ir_b_postingdate  = ir_b_postingdate
+                              IMPORTING et_origin_rev_doc = DATA(lt_origin_rev_doc) ).
+
+    "Delete data của et_tanggiammgia
+    LOOP AT lt_origin_rev_doc INTO DATA(ls_origin_rev_doc).
+      DELETE ct_temp_giadaukyb WHERE companycode = ls_origin_rev_doc-CompanyCode
+                                  AND fiscalyear = ls_origin_rev_doc-FiscalYear
+                                  AND accountingdocument = ls_origin_rev_doc-AccountingDocument.
+    ENDLOOP.
+    IF ct_temp_giadaukyb IS NOT INITIAL.
+      get_giadaukyb_final( EXPORTING it_temp_giadaukyb = ct_temp_giadaukyb
+                           CHANGING  ct_giadaukyb      = ct_giadaukyb ).
+    ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_ori_rev_doc_wa_dk.
+    SELECT FROM I_MaterialDocumentItem_2 AS a
+    INNER JOIN @it_reversal_doc_wa AS b
+        ON b~AccountingDocument = a~ReversedMaterialDocument
+        AND substring( b~ledgergllineitem, 3, 4 ) = a~ReversedMaterialDocumentItem
+        AND b~FiscalYear = a~MaterialDocumentYear
+    FIELDS
+        b~doc_init,
+        b~docitem_init,
+        b~FiscalYear,
+
+        a~MaterialDocument,
+        a~MaterialDocumentItem,
+        a~PostingDate
+    WHERE
+        a~PostingDate IN @ir_b_postingdate
+    INTO TABLE @et_origin_rev_doc_wa.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_dk_base_ori_rev_doc.
+    LOOP AT it_origin_rev_doc_wa INTO DATA(ls_origin_rev_doc_wa).
+      DELETE ct_temp_giadaukyb WHERE companycode = ir_companycode[ 1 ]-low
+                                 AND fiscalyear = ls_origin_rev_doc_wa-FiscalYear
+                                 AND accountingdocument = ls_origin_rev_doc_wa-doc_init
+                                 AND ledgergllineitem = ls_origin_rev_doc_wa-docitem_init.
+    ENDLOOP.
+    IF ct_temp_giadaukyb IS NOT INITIAL.
+      get_giadaukyb_final( EXPORTING it_temp_giadaukyb = ct_temp_giadaukyb
+                           CHANGING  ct_giadaukyb      = ct_giadaukyb ).
+    ENDIF.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_rev_matdoc_wa_dk.
+    SELECT FROM I_GLAccountLineItemSemTag AS a
+    INNER JOIN @it_origin_rev_doc_wa AS b
+        ON b~FiscalYear = a~FiscalYear
+        AND b~MaterialDocument = a~ReferenceDocument
+        AND b~MaterialDocumentItem = substring( a~ReferenceDocumentItem, 3, 4 )
+    FIELDS
+        a~CompanyCode,
+        a~FiscalYear,
+        a~AccountingDocument,
+        a~LedgerGLLineItem,
+        a~PostingDate
+    WHERE
+        a~ledger = '0L'
+        AND a~SemanticTag = 'ASSET'
+        AND a~GLAccountHierarchy = 'ZBS'
+
+        AND a~CompanyCode IN @ir_companycode
+        AND a~PostingDate IN @ir_b_postingdate
+    GROUP BY
+        a~CompanyCode,
+        a~FiscalYear,
+        a~AccountingDocument,
+        a~LedgerGLLineItem,
+        a~PostingDate
+    INTO TABLE @et_rev_matdoc_wa.
+  ENDMETHOD.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  METHOD get_dk_base_rev_matdoc_wa.
+    IF it_rev_matdoc_wa IS NOT INITIAL.
+      LOOP AT it_rev_matdoc_wa INTO DATA(ls_rev_matdoc_wa).
+        DELETE ct_temp_giadaukyb WHERE companycode = ir_companycode[ 1 ]-low
+                                   AND fiscalyear = ls_rev_matdoc_wa-FiscalYear
+                                   AND accountingdocument = ls_rev_matdoc_wa-AccountingDocument
+                                   AND LedgerGLLineItem = ls_rev_matdoc_wa-LedgerGLLineItem.
+      ENDLOOP.
+    ENDIF.
+    IF ct_temp_giadaukyb IS NOT INITIAL.
+      get_giadaukyb_final( EXPORTING it_temp_giadaukyb = ct_temp_giadaukyb
+                           CHANGING  ct_giadaukyb      = ct_giadaukyb ).
+    ENDIF.
+  ENDMETHOD.
 
 ENDCLASS.

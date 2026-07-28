@@ -46,8 +46,8 @@ annotate entity zce_asset_rp with
   TenTaiSan;
 
   @EndUserText.label: 'Nhóm tài sản'
-  @UI.lineItem: [{ position: 50, label: 'Loại tài sản' }]
-  @UI.identification: [{ position: 50, label: 'Loại tài sản' }]
+  @UI.lineItem: [{ position: 50 }]
+  @UI.identification: [{ position: 50 }]
   @UI.selectionField: [{ position: 30 }]
   @Consumption.valueHelpDefinition: [{
     entity: { name:    'zvh_assetclass',

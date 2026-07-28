@@ -9,7 +9,11 @@ CLASS zcl_ce_asset_add_db_config DEFINITION
   PRIVATE SECTION.
 ENDCLASS.
 
-CLASS zcl_ce_asset_add_db_config IMPLEMENTATION.
+
+
+CLASS ZCL_CE_ASSET_ADD_DB_CONFIG IMPLEMENTATION.
+
+
   METHOD if_oo_adt_classrun~main.
     DATA: lt_data TYPE STANDARD TABLE OF ztb_asset_rp.
 

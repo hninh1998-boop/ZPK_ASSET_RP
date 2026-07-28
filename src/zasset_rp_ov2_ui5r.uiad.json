@@ -8,7 +8,7 @@
   "generalInformation": {
     "appType": "ui5",
     "catalogId": "SAP_TC_UI5_REPO_UIAD",
-    "targetMappingTitle": "Báo cáo tổng hợp Tài Sản Cố Định"
+    "targetMappingTitle": "Báo cáo Tổng hợp Tài Sản Cố Định"
   },
   "ui5AppDetails": {
     "appId": "zassetrpov2"
@@ -27,7 +27,7 @@
       "tileType": "static",
       "isDefault": true,
       "standard": {
-        "title": "Báo cáo tổng hợp Tài Sản Cố Định"
+        "title": "Báo cáo Tổng hợp Tài Sản Cố Định"
       }
     }
   ]
