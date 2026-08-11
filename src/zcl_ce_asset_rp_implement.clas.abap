@@ -854,7 +854,8 @@ CLASS zcl_ce_asset_rp_implement IMPLEMENTATION.
         a~FiscalYear,
 
         "Tên tài sản
-        b~\_MasterFixedAsset-MasterFixedAssetDescription,
+*        b~\_MasterFixedAsset-MasterFixedAssetDescription,
+        c~FixedAssetDescription AS MasterFixedAssetDescription,
         b~AssetAdditionalDescription,
 
         "Loại tài sản

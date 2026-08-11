@@ -170,7 +170,7 @@ annotate entity zce_asset_rp with
   @Consumption.filter.hidden: true
   NgayBatDauKhauHao;
 
-  @EndUserText.label: 'Tài khoản khấu hao'
+  @EndUserText.label: 'Tài khoản chi phí khấu hao'
   @UI.lineItem: [{ position: 210 }]
   @UI.identification: [{ position: 210 }]
   @Consumption.filter.hidden: true
